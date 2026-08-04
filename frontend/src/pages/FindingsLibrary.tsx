@@ -11,7 +11,9 @@ const SEV_RANK: Record<string, number> = { critical: 0, high: 1, medium: 2, low:
 const CATEGORIES = [
   'Active Directory', 'Web Application', 'API', 'Network', 'Infrastructure',
   'Cloud', 'Physical', 'Social Engineering', 'Mobile', 'Wireless',
-  'Source Code Review', 'AWS / Cloud', 'Azure / Cloud', 'WiFi', 'Other',
+  'Source Code Review', 'C# / .NET', 'Java', 'Python', 'Go',
+  'AngularJS / Angular', 'Thick Client',
+  'AWS / Cloud', 'Azure / Cloud', 'WiFi', 'Other',
   'Red Team', 'External Infrastructure', 'Internal Infrastructure',
 ]
 
