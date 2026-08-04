@@ -1,0 +1,29 @@
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.venv/
+venv/
+
+# Data / secrets (mounted as a volume at runtime)
+data/
+
+# Dev artifacts
+assets/
+exports/
+*.log
+
+# Version control
+.git/
+.gitignore
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

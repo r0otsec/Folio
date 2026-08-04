@@ -1,0 +1,27 @@
+name: folio
+
+services:
+  folio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - folio-data:/app/data
+    environment:
+      - DATA_DIR=/app/data
+      - PENTEST_DIR=/app/pentest-report
+      - BACKEND_DIR=/app/backend
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  folio-data:
+    name: folio-data
