@@ -1,0 +1,19 @@
+{# ── TECHNICAL SUMMARY ──────────────────────────────────────────────────────── #}
+{# Narrative-first section for the technical team. Follows the Executive Summary #}
+{# and precedes the Technical Findings Overview chart and table.                 #}
+{% set ts = report.technical_summary or {} %}
+{% set scope = report.scope %}
+
+<div class="report-section page-break" id="technical-summary">
+
+  <h2 class="plain-section-title">Technical Summary</h2>
+
+  {# ── Technical narrative ─────────────────────────────────── #}
+  {% if ts.narrative %}
+  <div class="exec-narrative md-content" style="margin-bottom:20px">
+    {{ ts.narrative | md | safe }}
+  </div>
+  {% endif %}
+
+
+</div>

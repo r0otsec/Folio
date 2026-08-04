@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 90">
+
+<g transform="translate(4,17)">
+  <rect x="4" y="4" width="48" height="48" rx="10" fill="none" stroke="#e9e9ed" stroke-width="2.5"></rect>
+  <line x1="14" y1="38" x2="42" y2="18" stroke="#9184d9" stroke-width="3" stroke-linecap="round"></line>
+</g>
+<text x="76" y="47" class="wordmark" font-size="34" letter-spacing="-0.3">Folio</text>
+<text x="77" y="68" class="tagline" font-size="12" letter-spacing="0.3">by RootSec</text>
+</svg>

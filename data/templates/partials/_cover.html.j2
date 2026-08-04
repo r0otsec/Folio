@@ -1,0 +1,68 @@
+{# ── COVER PAGE ─────────────────────────────────────────────────────────────── #}
+{% set meta = report.meta %}
+{% set dates = meta.dates %}
+
+<div class="cover-page">
+  <div class="cover-accent-strip"></div>
+  <div class="cover-bottom-bar"></div>
+
+  <div class="cover-content">
+
+    {# ── RootSec company logo (inverted to white for dark background) ── #}
+    <div class="cover-logo-wrap">
+      {% if report._company_logo %}
+        <img class="cover-logo" src="{{ report._company_logo }}" alt="{{ meta.consultant.firm }}">
+      {% else %}
+        <div class="cover-logo-text">{{ meta.consultant.firm | upper }}</div>
+      {% endif %}
+    </div>
+
+    <div class="cover-rule"></div>
+
+    <div class="cover-classification">{{ meta.classification }}</div>
+
+    {# ── Client name — primary, front and centre ── #}
+    <div class="cover-client-name">{{ meta.client.name }}</div>
+
+    {# ── Report title — secondary, below client ── #}
+    <h1 class="cover-title">{{ meta.title }}</h1>
+
+    {% if meta.subtitle %}
+    <p class="cover-subtitle">{{ meta.subtitle }}</p>
+    {% endif %}
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Issue Date</span>
+        <span class="cover-meta-value">{{ dates.report_date_fmt or dates.report_date }}</span>
+      </div>
+      <div class="cover-meta-divider"></div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Version</span>
+        <span class="cover-meta-value">{{ dates.report_version }}</span>
+      </div>
+      <div class="cover-meta-divider"></div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Report ID</span>
+        <span class="cover-meta-value">{{ meta.report_id }}</span>
+      </div>
+    </div>
+
+    {# ── Legal disclaimer at the bottom of the cover ── #}
+    <div class="cover-legal">
+      <div class="cover-legal-line"></div>
+      <p class="cover-legal-text">
+        This report and its contents are <strong>private and confidential</strong> and are prepared
+        exclusively for {{ meta.client.name }} and {{ meta.consultant.firm }} internal use.
+        This document may not be reproduced or disclosed to any third party, in whole or in part,
+        without the prior written consent of {{ meta.consultant.firm }}.
+        The contents of this report represent a point-in-time assessment of the systems and
+        services described within and should not be relied upon beyond the stated report date
+        without conducting a fresh assessment.
+        {{ meta.consultant.firm }} accepts no liability for actions taken or not taken based on
+        the information contained herein.
+      </p>
+    </div>
+
+  </div>{# /cover-content #}
+</div>{# /cover-page #}

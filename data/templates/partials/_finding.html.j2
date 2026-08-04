@@ -1,0 +1,191 @@
+{# ── FINDING PAGE ──────────────────────────────────────────────────────────────
+   Clean Word-document style. Each finding on its own page.
+   Expects: current_finding in scope.
+───────────────────────────────────────────────────────────────────────────────#}
+{% set f = current_finding %}
+
+<div class="finding-card" id="finding-{{ f.id | lower }}">
+
+  {# ── Banner: ref · title · Risk · severity ────────────────────────── #}
+  <div class="finding-banner">
+    <div class="finding-banner-ref">{{ f.id }}</div>
+    <div class="finding-banner-title">{{ f.title }}</div>
+    <div class="finding-banner-sev {{ f.severity_key }}" style="-webkit-print-color-adjust:exact;print-color-adjust:exact">{{ f.severity_display }}</div>
+  </div>
+
+  <div class="finding-doc-body">
+
+    {# CVE reference (inline, no tag styling) #}
+    {% if f.cve %}
+    <p class="finding-meta-note">CVE: <strong>{{ f.cve }}</strong></p>
+    {% endif %}
+
+    {# Description & Evidence — new block format (interleaved text/code/screenshot) #}
+    {% if f.processed_content_blocks %}
+    <div class="finding-section">
+      <div class="finding-section-label">Description</div>
+      <div class="finding-section-body">
+        {% for block in f.processed_content_blocks %}
+          {% if block.type == 'text' %}
+          <div class="md-content" style="margin-bottom:10px">{{ block.content_html | safe }}</div>
+          {% elif block.type == 'code' %}
+          <div class="evidence-code-block avoid-break" style="margin-bottom:10px">
+            <div class="evidence-code-header">
+              <span class="evidence-code-label">{{ block.get('label') or 'Command Output' }}</span>
+            </div>
+            <pre>{{ block.highlighted_html | safe }}</pre>
+            {% if block.caption %}
+            <div class="evidence-caption" style="padding:4px 14px 6px">{{ block.caption }}</div>
+            {% endif %}
+          </div>
+          {% elif block.type == 'screenshot' %}
+          <div class="evidence-screenshot avoid-break" style="margin-bottom:10px">
+            {% if block.data_uri %}
+            <img src="{{ block.data_uri }}" alt="{{ block.get('caption') or 'Evidence screenshot' }}"
+                 style="max-width:{{ block.get('width', 100) }}%">
+            {% endif %}
+            <div class="evidence-caption">
+              <strong>Figure {{ block.figure_number }}</strong>{% if block.caption %} — {{ block.caption }}{% endif %}
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    {# Legacy: separate description + evidence array #}
+    {% if f.description_html %}
+    <div class="finding-section">
+      <div class="finding-section-label">Description</div>
+      <div class="finding-section-body md-content">{{ f.description_html | safe }}</div>
+    </div>
+    {% endif %}
+
+    {# Evidence #}
+    {% if f.evidence %}
+    <div class="finding-section">
+      <div class="finding-section-label">Evidence</div>
+      <div class="evidence-container">
+        {% for ev in f.evidence %}
+          {% if ev.type == 'code' %}
+          <div class="evidence-code-block avoid-break">
+            <div class="evidence-code-header">
+              <span class="evidence-code-label">{{ ev.get('label', 'Command Output') }}</span>
+            </div>
+            <pre>{{ ev.highlighted_html | safe }}</pre>
+          </div>
+          {% elif ev.type == 'screenshot' %}
+          <div class="evidence-screenshot avoid-break">
+            {% if ev.data_uri %}
+            <img src="{{ ev.data_uri }}" alt="{{ ev.get('caption', 'Evidence screenshot') }}">
+            {% endif %}
+            <div class="evidence-caption">
+              <strong>Figure {{ ev.figure_number }}</strong>{% if ev.caption %} — {{ ev.caption }}{% endif %}{% if ev.annotated %} <span style="color:var(--red)">[annotated]</span>{% endif %}
+            </div>
+          </div>
+          {% elif ev.type == 'text' %}
+          <div class="finding-section-body" style="margin-bottom:8px">{{ ev.content }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {# Risk Rating Justification #}
+    {% if f.risk_rating_justification_html %}
+    <div class="finding-section">
+      <div class="finding-section-label">Risk Rating Justification</div>
+      <div class="finding-section-body md-content">{{ f.risk_rating_justification_html | safe }}</div>
+    </div>
+    {% endif %}
+
+    {# CVSS Score #}
+    {% if f.cvss_score is not none and f.cvss_score != '' %}
+    <div class="finding-section">
+      <div class="finding-section-label">CVSS Score</div>
+      <div class="finding-section-body">
+        <p style="margin:0 0 4px"><strong>CVSSv4 Score:</strong> {{ f.cvss_score }} ({{ f.cvss_label }})</p>
+        {% if f.cvss_vector %}
+        <p style="margin:0"><strong>CVSSv4 Vector String:</strong> {{ f.cvss_vector }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Impact #}
+    {% if f.impact_technical_html or f.impact_business_html %}
+    <div class="finding-section">
+      <div class="finding-section-label">Impact</div>
+      <div class="finding-section-body md-content">
+        {% if f.impact_technical_html %}{{ f.impact_technical_html | safe }}{% endif %}
+        {% if f.impact_business_html %}{{ f.impact_business_html | safe }}{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Recommendations #}
+    {% if f.recs_html %}
+    <div class="finding-section">
+      <div class="finding-section-label">Recommendations</div>
+      <div class="finding-section-body md-content">{{ f.recs_html | safe }}</div>
+    </div>
+    {% endif %}
+
+    {# Affected Hosts — plain bullet list, no chips #}
+    {% if f.affected_hosts %}
+    <div class="finding-section">
+      <div class="finding-section-label">Affected Hosts</div>
+      <div class="finding-section-body">
+        <p style="margin:0 0 6px">The following hosts were affected by this issue:</p>
+        <ul style="margin:0;padding-left:32px">
+          {% for host in f.affected_hosts %}
+          <li>{{ host }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    {# References #}
+    {% if f.references %}
+    <div class="finding-section">
+      <div class="finding-section-label">References</div>
+      <div class="finding-section-body">
+        <ul class="references-list">
+          {% for ref in f.references %}
+          {% if ref is mapping %}
+          <li>
+            {% if ref.title %}<strong style="color:var(--text);font-weight:700">{{ ref.title }}</strong>{% endif %}
+            {% if ref.title and ref.url %} - {% endif %}
+            {% if ref.url %}<span style="color:var(--text-sub)">{{ ref.url }}</span>{% endif %}
+            {% if not ref.title and not ref.url %}(empty reference){% endif %}
+          </li>
+          {% else %}
+          <li>{{ ref }}</li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    {# Retest — only rendered when explicitly enabled on this finding #}
+    {% if f.retest and f.retest.enabled %}
+    <div class="finding-section">
+      <div class="finding-section-label">Retest Results</div>
+      <div class="finding-section-body">
+        <p style="margin:0 0 4px">
+          <strong>Status:</strong>
+          {{ f.retest.status if f.retest.status else "Pending Retest" }}
+          {% if f.retest.retest_date %}&mdash; Retested: {{ f.retest.retest_date | fmt_date }}{% endif %}
+        </p>
+        {% if f.retest.notes %}
+        <p style="margin:0">{{ f.retest.notes }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>{# /finding-doc-body #}
+</div>{# /finding-card #}

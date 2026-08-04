@@ -1,0 +1,157 @@
+{# ── DOCUMENT PREAMBLE ────────────────────────────────────────────────────────
+   Rendered immediately after the cover page, before the Table of Contents.
+   Contains: Project Details · Delivery Team · Distribution List · Version History
+─────────────────────────────────────────────────────────────────────────────#}
+{% set meta = report.meta %}
+{% set eng  = report.engagement or {} %}
+
+<div class="report-section page-break" id="document-preamble">
+
+  {# ── Project Details ─────────────────────────────────────────────────────── #}
+  <div class="avoid-break" style="margin-bottom:28px">
+    <h3 style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;
+               letter-spacing:0.06em;margin:0 0 10px;padding-bottom:6px;
+               border-bottom:2px solid var(--border-mid)">Project Details</h3>
+    <table class="data-table">
+      <tbody>
+        <tr>
+          <td style="font-weight:600;width:200px;color:var(--text)">Report ID</td>
+          <td style="font-family:var(--font-mono);font-size:10px">{{ meta.report_id }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Report Title</td>
+          <td>{{ meta.title }}</td>
+        </tr>
+        {% if meta.subtitle %}
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Assessment Type</td>
+          <td>{{ meta.subtitle }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Client Organisation</td>
+          <td>{{ meta.client.name }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Client Contact</td>
+          <td>{{ meta.client.contact_name }}{% if meta.client.contact_title %}, {{ meta.client.contact_title }}{% endif %}{% if meta.client.contact_email %} &mdash; {{ meta.client.contact_email }}{% endif %}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Assessment Start</td>
+          <td>{{ meta.dates.assessment_start | fmt_date }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Assessment End</td>
+          <td>{{ meta.dates.assessment_end | fmt_date }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Report Date</td>
+          <td>{{ meta.dates.report_date_fmt or meta.dates.report_date }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Report Version</td>
+          <td>{{ meta.dates.report_version }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--text)">Classification</td>
+          <td>{{ meta.classification }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {# ── Delivery Team ───────────────────────────────────────────────────────── #}
+  <div class="avoid-break" style="margin-bottom:28px">
+    <h3 style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;
+               letter-spacing:0.06em;margin:0 0 10px;padding-bottom:6px;
+               border-bottom:2px solid var(--border-mid)">Delivery Team</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Organisation</th>
+          <th>Contact</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if eng.delivery_team %}
+        {% for member in eng.delivery_team %}
+        <tr>
+          <td style="font-weight:600;color:var(--text)">{{ member.name }}</td>
+          <td>{{ member.role }}</td>
+          <td>{{ member.organisation or meta.consultant.firm }}</td>
+          <td style="font-size:9.5px;color:var(--text-muted)">{{ member.email or '' }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td style="font-weight:600;color:var(--text)">{{ meta.consultant.name }}</td>
+          <td>{{ meta.consultant.title }}</td>
+          <td>{{ meta.consultant.firm }}</td>
+          <td style="font-size:9.5px;color:var(--text-muted)">{{ meta.consultant.email or '' }}</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ── Distribution List ───────────────────────────────────────────────────── #}
+  {% if meta.distribution %}
+  <div class="avoid-break" style="margin-bottom:28px">
+    <h3 style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;
+               letter-spacing:0.06em;margin:0 0 10px;padding-bottom:6px;
+               border-bottom:2px solid var(--border-mid)">Distribution List</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:220px">Name</th>
+          <th>Role / Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for recipient in meta.distribution %}
+        {% if recipient is mapping %}
+        <tr>
+          <td style="font-weight:600;color:var(--text)">{{ recipient.name }}</td>
+          <td>{{ recipient.role }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2">{{ recipient }}</td></tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {# ── Version History ─────────────────────────────────────────────────────── #}
+  {% if report.version_history %}
+  <div class="avoid-break" style="margin-bottom:0">
+    <h3 style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;
+               letter-spacing:0.06em;margin:0 0 10px;padding-bottom:6px;
+               border-bottom:2px solid var(--border-mid)">Version History</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:80px">Version</th>
+          <th style="width:160px;white-space:nowrap">Date</th>
+          <th style="width:160px">Author</th>
+          <th>Changes / Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in report.version_history %}
+        <tr>
+          <td style="font-family:var(--font-mono);font-weight:600;color:var(--navy)">{{ v.version }}</td>
+          <td style="white-space:nowrap">{{ v.date | fmt_date }}</td>
+          <td style="font-weight:600;color:var(--text)">{{ v.author }}</td>
+          <td>{{ v.changes }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>

@@ -1,0 +1,18 @@
+{# ── ASSESSMENT SECTION ──────────────────────────────────────────────────────── #}
+{# The section heading page has been removed to avoid blank pages. A zero-height  #}
+{# anchor div carries the section ID for TOC links. The TOC links sections to     #}
+{# their first finding, so page numbers stay accurate.                            #}
+{# Expects: current_section (dict) in scope.                                      #}
+{% set section = current_section %}
+
+{# Zero-height anchor — invisible, no page break, purely for TOC/URL linking #}
+<div id="section-{{ section.id_slug }}" style="height:0;overflow:hidden;margin:0;padding:0;"></div>
+
+{# ── Individual finding pages ─────────────────────────────────────────────── #}
+{% if section.findings %}
+  {% for finding in section.findings %}
+    {% with current_finding = finding %}
+      {% include 'partials/_finding.html.j2' %}
+    {% endwith %}
+  {% endfor %}
+{% endif %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ report.meta.title }} — {{ report.meta.client.name }}</title>
+  <style>{{ css_content }}</style>
+</head>
+<body>
+
+  {# ── 1. COVER PAGE ───────────────────────────────────────── #}
+  {% include 'partials/_cover.html.j2' %}
+
+  {# ── 1b. DOCUMENT PREAMBLE (distribution · contacts · version history) ── #}
+  {% include 'partials/_document_preamble.html.j2' %}
+
+  {# ── 2. TABLE OF CONTENTS ────────────────────────────────── #}
+  {% include 'partials/_toc.html.j2' %}
+
+  {# ── 3. INTRODUCTION ─────────────────────────────────────── #}
+  {% include 'partials/_introduction.html.j2' %}
+
+  {# ── 4. EXECUTIVE SUMMARY (incl. Management + Technical sub-sections) ── #}
+  {% include 'partials/_executive_summary.html.j2' %}
+
+  {# ── 5. RISK CHART + TECHNICAL FINDINGS OVERVIEW TABLE ───── #}
+  {# Placed after technical summary, before assessment sections #}
+  {% include 'partials/_finding_overview.html.j2' %}
+
+  {# ── 6. EXPLOITATION SCENARIOS / SIGNIFICANT FINDINGS ────── #}
+  {% include 'partials/_exploitation_scenarios.html.j2' %}
+
+  {# ── 7. ASSESSMENT SECTIONS ──────────────────────────────── #}
+  {% for section in report.enabled_sections %}
+    {% with current_section = section %}
+      {% include 'partials/_assessment_section.html.j2' %}
+    {% endwith %}
+  {% endfor %}
+
+  {# ── 8. REMEDIATION ROADMAP ──────────────────────────────── #}
+  {% include 'partials/_remediation_roadmap.html.j2' %}
+
+  {# ── 9. APPENDICES (A: Technical Data · B: Engagement · C: Risk Ratings) #}
+  {% include 'partials/_appendices.html.j2' %}
+
+</body>
+</html>

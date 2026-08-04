@@ -1,0 +1,50 @@
+{# ── EXECUTIVE SUMMARY ──────────────────────────────────────────────────────── #}
+{% set es = report.executive_summary %}
+{% set rs = report.risk_summary %}
+{% set ts = report.technical_summary or {} %}
+
+<div class="report-section page-break" id="executive-summary">
+
+  <h2 class="plain-section-title">Executive Summary</h2>
+
+  {# Overall risk rating badge #}
+  {% if es.overall_risk_rating %}
+  <div style="margin-bottom:18px">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+                 color:var(--text-muted);margin-right:8px">Overall Risk Rating</span>
+    <span class="sev-badge {{ es.overall_risk_rating | lower }}">{{ es.overall_risk_rating }}</span>
+  </div>
+  {% endif %}
+
+  {# Intro narrative #}
+  {% if es.narrative_html %}
+  <div class="exec-narrative md-content" style="margin-bottom:28px">
+    {{ es.narrative_html | safe }}
+  </div>
+  {% endif %}
+
+  {# ── 4.1 Management Summary ─────────────────────────────── #}
+  {% if es.management_summary_html or es.key_findings %}
+  <div style="margin-bottom:28px">
+    <h3 class="exec-sub-heading" style="break-after:avoid;page-break-after:avoid">Management Summary</h3>
+    {% if es.management_summary_html %}
+    <div class="exec-narrative md-content">{{ es.management_summary_html | safe }}</div>
+    {% elif es.key_findings and es.key_findings | length > 0 %}
+    <ul class="exec-key-findings md-content">
+      {% for kf in es.key_findings %}<li>{{ kf }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ── 4.2 Technical Summary ──────────────────────────────── #}
+  {% if ts.narrative %}
+  <div>
+    <h3 class="exec-sub-heading" style="break-after:avoid;page-break-after:avoid">Technical Summary</h3>
+    <div class="exec-narrative md-content">
+      {{ ts.narrative | md | safe }}
+    </div>
+  </div>
+  {% endif %}
+
+</div>

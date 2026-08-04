@@ -1,0 +1,1165 @@
+/* ============================================================
+   RootSec Penetration Test Report — Professional Stylesheet
+   Cover page: dark themed. All body pages: white.
+   Engine: Playwright/Chromium (print-background: true)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ─── DESIGN TOKENS ────────────────────────────────────── */
+:root {
+  /* Brand */
+  --navy:        #1a2744;
+  --navy-mid:    #243352;
+  --red:         #e63946;
+  --red-dark:    #c1121f;
+
+  /* Body text (white pages) */
+  --text:        #111827;
+  --text-sub:    #374151;
+  --text-muted:  #6b7280;
+  --text-light:  #9ca3af;
+
+  /* Surfaces */
+  --white:       #ffffff;
+  --bg-light:    #f9fafb;
+  --bg-accent:   #f0f4ff;
+  --border:      #e5e7eb;
+  --border-mid:  #d1d5db;
+
+  /* Severity — always visible on white */
+  --crit:        #e63946;  --crit-bg:  #fef2f2;  --crit-border: #fca5a5;
+  --high:        #f4802b;  --high-bg:  #fff7ed;  --high-border: #fdba74;
+  --med:         #f5c518;  --med-bg:   #fffbeb;  --med-border:  #fcd34d;
+  --low:         #2196f3;  --low-bg:   #eff6ff;  --low-border:  #93c5fd;
+  --info:        #8b949e;  --info-bg:  #f9fafb;  --info-border: #d1d5db;
+
+  /* Cover page (dark) */
+  --cover-bg:    #0d1117;
+  --cover-text:  #f0f6fc;
+  --cover-sub:   #8b949e;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* ─── PRINT SETUP ──────────────────────────────────────── */
+@page {
+  size: A4;
+  /* Top: space for running header logo + breathing room; Bottom: clear gap before footer */
+  margin: 88px 0 80px 0;
+  background-color: white;
+}
+
+/* Cover page — full bleed dark, no margin */
+@page cover {
+  margin: 0;
+  background-color: var(--cover-bg);
+}
+
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: white;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── PAGE BREAK HELPERS ───────────────────────────────── */
+.page-break     { page-break-before: always; break-before: page; }
+.avoid-break    { page-break-inside: avoid;  break-inside: avoid; }
+.keep-next      { page-break-after: avoid;   break-after: avoid; }
+
+/* ─── FINDING ID CELL ──────────────────────────────────── */
+.finding-id-cell {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+/* ─── BODY TYPOGRAPHY ──────────────────────────────────── */
+h1 { font-size: 20px; font-weight: 800; color: var(--navy); margin: 0 0 8px; }
+h2 { font-size: 15px; font-weight: 700; color: var(--navy); margin: 20px 0 10px; }
+h3 { font-size: 12.5px; font-weight: 600; color: var(--text-sub); margin: 14px 0 6px; }
+h4 { font-size: 10px;   font-weight: 700; color: var(--text-muted); margin: 10px 0 4px;
+     text-transform: uppercase; letter-spacing: 0.07em; }
+
+p  { margin: 0 0 10px; color: var(--text-sub); }
+a  { color: var(--red); text-decoration: none; }
+
+ul, ol { margin: 0 0 10px; padding-left: 20px; color: var(--text-sub); }
+li { margin-bottom: 4px; }
+li::marker { color: var(--red); }
+
+strong { font-weight: 600; color: var(--text); }
+em     { color: var(--text-muted); }
+code   { font-family: var(--font-mono); font-size: 10px;
+         background: #f3f4f6; color: #1f2937;
+         padding: 1px 5px; border-radius: 3px;
+         border: 1px solid var(--border); }
+
+/* ================================================================
+   COVER PAGE — dark themed, full bleed
+   ================================================================ */
+.cover-page {
+  page: cover;
+  page-break-after: always;
+  break-after: page;
+  width: 100%;
+  min-height: 297mm;
+  background: var(--cover-bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Red accent strip — left edge */
+.cover-accent-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--red);
+}
+
+/* Bottom accent bar */
+.cover-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--red);
+}
+
+.cover-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 72px;
+  text-align: center;
+}
+
+/* ── Logo — large and prominent ── */
+.cover-logo-wrap {
+  margin-bottom: 48px;
+}
+
+.cover-logo {
+  max-height: 90px;
+  max-width: 340px;
+  object-fit: contain;
+}
+
+.cover-logo-text {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: white;
+}
+
+/* ── Divider line ── */
+.cover-rule {
+  width: 80px;
+  height: 3px;
+  background: var(--red);
+  border-radius: 2px;
+  margin: 0 auto 36px;
+}
+
+/* ── Classification badge ── */
+.cover-classification {
+  display: inline-block;
+  background: var(--red);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 2px;
+  margin-bottom: 28px;
+}
+
+/* ── Client name — primary identity on cover ── */
+.cover-client-name {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--cover-text);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+}
+
+/* ── Report title — secondary, below client name ── */
+.cover-title {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--cover-sub);
+  line-height: 1.4;
+  margin: 0 0 10px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Assessment sub-heading ── */
+.cover-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--cover-sub);
+  margin: 0;
+}
+
+/* ── Meta grid: date · version ── */
+.cover-meta {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.cover-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cover-meta-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--cover-sub);
+  text-transform: uppercase;
+}
+
+.cover-meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cover-text);
+}
+
+.cover-meta-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(139,148,158,0.3);
+}
+
+/* ── Legal disclaimer at bottom of cover ── */
+.cover-legal {
+  width: 100%;
+  margin-top: 40px;
+  padding-top: 14px;
+}
+
+.cover-legal-line {
+  width: 100%;
+  height: 1px;
+  background: rgba(139,148,158,0.18);
+  margin-bottom: 12px;
+}
+
+.cover-legal-text {
+  font-size: 8.5px;
+  color: rgba(139,148,158,0.65);
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+.cover-legal-text strong {
+  color: rgba(240,246,252,0.45);
+  font-weight: 600;
+}
+
+/* ================================================================
+   SECTION WRAPPER — white pages
+   ================================================================ */
+.report-section {
+  padding: 32px 72px 24px;
+}
+
+/* Every section always on a new page */
+.report-section { page-break-before: always; break-before: page; }
+
+/* Section heading strip */
+.section-header {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  break-inside: avoid;
+}
+
+.section-num-block {
+  background: var(--navy);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.section-title-block {
+  flex: 1;
+  background: var(--bg-accent);
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0;
+}
+
+/* ================================================================
+   TABLE OF CONTENTS — Word-document style
+   ================================================================ */
+.toc-page {
+  padding: 40px 72px;
+}
+
+.toc-heading {
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text-sub);
+  margin: 0 0 32px;
+  letter-spacing: -0.01em;
+}
+
+.toc-body { }
+
+/* Each row: label + dotted leader */
+.toc-row {
+  display: flex;
+  align-items: baseline;
+  padding: 4px 0;
+  gap: 2px;
+}
+
+.toc-main .toc-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Sub-item (indented, lighter weight) */
+.toc-sub {
+  padding-left: 22px;
+}
+
+.toc-sub .toc-label {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-sub);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* TOC anchor links — the <a> IS the row, so it inherits toc-row flex layout */
+.toc-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Dotted leader line */
+.toc-leader {
+  flex: 1;
+  border-bottom: 1px dotted #9ca3af;
+  margin: 0 8px 3px;
+  min-width: 20px;
+}
+
+/* Finding row: ref code + title side by side */
+.toc-finding-ref {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--red);
+  min-width: 56px;
+  flex-shrink: 0;
+}
+
+.toc-finding-title {
+  font-size: 10px;
+  color: var(--text-sub);
+  font-weight: 400;
+}
+
+/* Page number injected by JS into each TOC row */
+.toc-page-num {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 22px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.toc-sub .toc-page-num {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+/* Document Control table at bottom of TOC page */
+.toc-doc-control {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-mid);
+}
+
+.toc-doc-control-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.toc-control-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5px;
+}
+
+.toc-control-table th {
+  background: var(--bg-light);
+  color: var(--text-muted);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+.toc-control-table td {
+  padding: 6px 10px;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+/* ================================================================
+   EXECUTIVE SUMMARY
+   ================================================================ */
+.exec-overall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid;
+  break-inside: avoid;
+}
+
+.exec-overall-badge.critical { background: var(--crit-bg); border-color: var(--crit-border); }
+.exec-overall-badge.high     { background: var(--high-bg); border-color: var(--high-border); }
+.exec-overall-badge.medium   { background: var(--med-bg);  border-color: var(--med-border); }
+.exec-overall-badge.low      { background: var(--low-bg);  border-color: var(--low-border); }
+
+.overall-label  { font-size: 8.5px; font-weight: 700; letter-spacing: 0.1em;
+                  color: var(--text-muted); text-transform: uppercase; }
+.overall-rating { font-size: 18px; font-weight: 800; }
+.overall-rating.critical { color: var(--crit); }
+.overall-rating.high     { color: var(--high); }
+.overall-rating.medium   { color: var(--med); }
+.overall-rating.low      { color: var(--low); }
+
+.stat-divider { width: 1px; height: 36px; background: var(--border-mid); }
+
+.stat-mini { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.stat-mini-num { font-size: 16px; font-weight: 800; }
+.stat-mini-num.critical { color: var(--crit); }
+.stat-mini-num.high     { color: var(--high); }
+.stat-mini-num.medium   { color: var(--med); }
+.stat-mini-num.low      { color: var(--low); }
+
+.key-finding-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.key-finding-item:last-child { border-bottom: none; }
+
+.key-finding-bullet {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red); margin-top: 5px; flex-shrink: 0;
+}
+
+/* Plain section title — no box, just the heading text */
+.plain-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1a7dd9;
+}
+
+/* Narrative body — full-width, proper line length */
+.exec-narrative {
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 10.5px;
+  line-height: 1.75;
+  color: var(--text-sub);
+}
+
+.exec-narrative p {
+  margin: 0 0 10px;
+  color: var(--text-sub);
+  width: 100%;
+}
+
+.key-findings-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px;
+}
+
+/* Executive Summary sub-headings (Management Summary / Technical Summary) */
+.exec-sub-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 12px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border-mid);
+}
+
+.exec-key-findings {
+  padding-left: 28px;
+  font-size: 10.5px;
+  line-height: 1.75;
+  color: var(--text-sub);
+}
+
+.exec-key-findings li {
+  margin-bottom: 5px;
+}
+
+/* ================================================================
+   RISK CHART SECTION
+   ================================================================ */
+.risk-chart-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  background: white;
+  break-inside: avoid;
+}
+
+.risk-chart-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.risk-chart-subtitle { font-size: 10px; color: var(--text-muted); margin-bottom: 16px; }
+
+.legend-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.legend-row:last-child { border-bottom: none; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { flex: 1; font-size: 11px; color: var(--text-sub); }
+.legend-count { font-size: 14px; font-weight: 800; font-family: var(--font-mono); }
+
+/* ================================================================
+   FINDING OVERVIEW TABLE
+   ================================================================ */
+
+/* Phase sub-heading — sits above each section's table */
+.phase-sub-heading {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 8px;
+  letter-spacing: 0.01em;
+}
+
+.overview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 10.5px;
+  border: 1px solid var(--border-mid);
+}
+
+.overview-table thead { break-inside: avoid; page-break-inside: avoid; }
+.overview-table thead th {
+  background: var(--navy-mid);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  text-align: left;
+  border-right: 1px solid rgba(255,255,255,0.25);
+}
+.overview-table thead th:last-child { border-right: none; }
+
+.overview-table tbody tr { border-bottom: 1px solid var(--border); }
+.overview-table tbody tr:last-child { border-bottom: none; }
+
+/* Even-row tint must NOT override the risk cell colour */
+.overview-table tbody tr:nth-child(even) td:not(:last-child) { background: var(--bg-light); }
+
+.overview-table td {
+  padding: 5px 10px;
+  color: var(--text-sub);
+  vertical-align: middle;
+  border-right: 1px solid var(--border);
+}
+.overview-table td:last-child { border-right: none; }
+
+/* Section sub-header row in the findings overview table */
+.findings-table-section-header {
+  background: var(--navy);
+  color: white;
+  padding: 7px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 3px 3px 0 0;
+}
+
+/* ================================================================
+   SEVERITY BADGE
+   ================================================================ */
+.sev-badge {
+  display: inline-block;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 3px;
+  color: white; white-space: nowrap;
+}
+
+.sev-badge.critical { background: var(--crit); }
+.sev-badge.high     { background: var(--high); }
+.sev-badge.medium   { background: var(--med); color: #1a1a1a; }
+.sev-badge.low      { background: var(--low); }
+.sev-badge.info, .sev-badge.informational { background: var(--info); }
+
+/* ================================================================
+   ASSESSMENT SECTION HEADER (on white pages)
+   ================================================================ */
+.assessment-header {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 4px;
+  padding: 18px 22px;
+  margin-bottom: 0;
+  break-inside: avoid;
+}
+
+.assessment-type-tag {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
+  color: var(--red); text-transform: uppercase; margin-bottom: 6px;
+}
+
+.assessment-title {
+  font-size: 17px; font-weight: 700; color: var(--navy); margin: 0 0 10px;
+}
+
+.assessment-narrative { font-size: 10.5px; color: var(--text-sub); line-height: 1.6; }
+
+.assessment-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.stat-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 20px; border: 1px solid;
+  font-size: 10px; font-weight: 600; white-space: nowrap;
+}
+
+.stat-pill.critical { border-color: var(--crit-border); color: var(--crit); background: var(--crit-bg); }
+.stat-pill.high     { border-color: var(--high-border); color: var(--high); background: var(--high-bg); }
+.stat-pill.medium   { border-color: var(--med-border);  color: var(--med);  background: var(--med-bg); }
+.stat-pill.low      { border-color: var(--low-border);  color: var(--low);  background: var(--low-bg); }
+.stat-pill.informational { border-color: var(--border-mid); color: var(--info); background: var(--info-bg); }
+
+/* ================================================================
+   FINDING PAGE — Word-document style, one finding per page
+   ================================================================ */
+.finding-card {
+  page-break-before: always;
+  break-before: page;
+  padding: 0 72px 32px;
+}
+
+/* Banner: ref · title · Risk label · severity value */
+.finding-banner {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 28px;
+}
+
+.finding-banner-ref {
+  flex: 0 0 80px;
+  background: var(--navy-mid);
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  text-align: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.finding-banner-title {
+  flex: 1;
+  background: var(--navy-mid);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.finding-banner-risk-label {
+  flex: 0 0 48px;
+  background: var(--navy-mid);
+  color: rgba(255,255,255,0.65);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.finding-banner-sev {
+  flex: 0 0 80px;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+}
+
+.finding-banner-sev.critical     { background: var(--crit); }
+.finding-banner-sev.high         { background: var(--high); }
+.finding-banner-sev.medium       { background: var(--med); color: #1a1a1a; }
+.finding-banner-sev.low          { background: var(--low); }
+.finding-banner-sev.informational,
+.finding-banner-sev.info         { background: var(--info); }
+
+/* Document body */
+.finding-doc-body { padding: 0; }
+
+.finding-meta-note {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+
+/* Each field section — own block, top to bottom */
+.finding-section { margin-bottom: 22px; }
+.finding-section:last-child { margin-bottom: 0; }
+
+.finding-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1a7dd9;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.finding-section-body {
+  font-size: 10.5px;
+  color: var(--text-sub);
+  line-height: 1.7;
+}
+
+.finding-section-body p { margin: 0 0 6px; }
+.finding-section-body p:last-child { margin-bottom: 0; }
+.finding-section-body ul, .finding-section-body ol { margin: 4px 0; padding-left: 32px; }
+.md-content ul, .md-content ol { padding-left: 32px; }
+
+/* References */
+.references-list { list-style: disc; padding-left: 32px; margin: 0; }
+.references-list li {
+  font-size: 9.5px; color: var(--text-muted); padding: 2px 0; margin: 0;
+}
+
+/* ================================================================
+   INTRODUCTION — SCOPE TABLE
+   ================================================================ */
+
+.intro-scope-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  border: 1px solid var(--border-mid);
+  margin-bottom: 0;
+}
+
+.intro-scope-table thead th {
+  background: var(--bg-light);
+  color: var(--navy);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-mid);
+  border-right: 1px solid var(--border);
+}
+.intro-scope-table thead th:last-child { border-right: none; }
+
+.intro-scope-table tbody tr { border-bottom: 1px solid var(--border); }
+.intro-scope-table tbody tr:last-child { border-bottom: none; }
+
+.intro-scope-table td {
+  padding: 8px 12px;
+  color: var(--text-sub);
+  vertical-align: top;
+  border-right: 1px solid var(--border);
+}
+.intro-scope-table td:last-child { border-right: none; }
+
+.intro-scope-cat {
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  width: 160px;
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.intro-scope-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.intro-scope-list li {
+  padding: 1px 0;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+/* ── Testing team table (intro) ── */
+.intro-team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  border: 1px solid var(--border-mid);
+}
+.intro-team-table thead th {
+  background: var(--bg-light);
+  color: var(--navy);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 7px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-mid);
+  border-right: 1px solid var(--border);
+}
+.intro-team-table thead th:last-child { border-right: none; }
+.intro-team-table tbody tr { border-bottom: 1px solid var(--border); }
+.intro-team-table tbody tr:last-child { border-bottom: none; }
+.intro-team-table td { padding: 7px 12px; color: var(--text-sub); border-right: 1px solid var(--border); }
+.intro-team-table td:first-child { font-weight: 600; color: var(--navy); }
+.intro-team-table td:last-child { border-right: none; }
+
+/* ================================================================
+   EXPLOITATION SCENARIOS
+   ================================================================ */
+
+.exploit-scenario {
+  margin-bottom: 0;
+}
+
+.exploit-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.exploit-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* Severity badge — reuses finding-banner-sev palette */
+.exploit-sev {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 3px 9px;
+  border-radius: 3px;
+  color: white;
+  white-space: nowrap;
+}
+.exploit-sev.critical { background: var(--crit); }
+.exploit-sev.high     { background: var(--high); }
+.exploit-sev.medium   { background: var(--med); color: #1a1a1a; }
+.exploit-sev.low      { background: var(--low); }
+.exploit-sev.informational, .exploit-sev.info { background: var(--info); }
+
+.exploit-refs {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+.exploit-ref-link {
+  color: #1a7dd9;
+  text-decoration: none;
+  font-weight: 600;
+}
+.exploit-ref-link:hover { text-decoration: underline; }
+
+.exploit-rec-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+  border-bottom: 1px solid #1a7dd9;
+  padding-bottom: 4px;
+  margin-bottom: 7px;
+  margin-top: 14px;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+/* ================================================================
+   EVIDENCE BLOCKS
+   ================================================================ */
+.evidence-container { margin: 10px 0; }
+
+.evidence-code-block {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  break-inside: avoid;
+  margin-bottom: 14px;
+}
+
+.evidence-code-header {
+  display: flex; align-items: center;
+  padding: 6px 14px;
+  background: var(--navy);
+  border-bottom: 1px solid var(--border);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.evidence-code-label {
+  font-size: 9px; font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.06em;
+}
+
+.evidence-code-block pre {
+  margin: 0; padding: 12px 14px;
+  font-family: var(--font-mono); font-size: 9.5px; line-height: 1.65;
+  color: #1f2937; background: #f8fafc;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+.evidence-screenshot { margin-bottom: 10px; break-inside: avoid; }
+.evidence-screenshot img {
+  max-width: 100%; border-radius: 4px; border: 1px solid var(--border);
+  display: block; margin: 0 auto;
+}
+.evidence-caption {
+  font-size: 9px; color: var(--text-muted); text-align: center;
+  margin-top: 5px; font-style: italic;
+}
+
+/* ================================================================
+   RETEST SECTION
+   ================================================================ */
+.retest-section {
+  margin-top: 14px; padding: 10px 14px;
+  background: var(--bg-light); border: 1px solid var(--border);
+  border-radius: 4px; break-inside: avoid;
+}
+
+.retest-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.retest-title { font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+                color: var(--text-muted); text-transform: uppercase; }
+
+.retest-status-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
+}
+
+.retest-status-badge.remediated { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.retest-status-badge.partial    { background: var(--med-bg); color: var(--med); border: 1px solid var(--med-border); }
+.retest-status-badge.open       { background: var(--crit-bg); color: var(--crit); border: 1px solid var(--crit-border); }
+.retest-status-badge.pending    { background: var(--info-bg); color: var(--info); border: 1px solid var(--border-mid); }
+
+/* ================================================================
+   REMEDIATION ROADMAP
+   ================================================================ */
+.roadmap-tier { margin-bottom: 24px; break-inside: avoid; }
+
+.roadmap-tier-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px; border-radius: 4px 4px 0 0; border: 1px solid;
+  border-bottom: none;
+}
+
+.roadmap-tier-header.immediate  { background: var(--crit-bg); border-color: var(--crit-border); }
+.roadmap-tier-header.short-term { background: var(--high-bg); border-color: var(--high-border); }
+.roadmap-tier-header.medium-term{ background: var(--med-bg);  border-color: var(--med-border); }
+.roadmap-tier-header.long-term  { background: var(--low-bg);  border-color: var(--low-border); }
+
+.roadmap-tier-title { font-size: 12px; font-weight: 700; color: var(--navy); }
+.roadmap-tier-desc  { font-size: 9.5px; color: var(--text-muted); margin-left: auto; }
+
+.roadmap-table {
+  width: 100%; border-collapse: collapse;
+  border: 1px solid var(--border); border-radius: 0 0 4px 4px; overflow: hidden;
+}
+
+.roadmap-table th {
+  background: var(--navy); color: white;
+  padding: 8px 12px; font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; text-align: left;
+}
+
+.roadmap-table td {
+  padding: 8px 12px; font-size: 10.5px; color: var(--text-sub);
+  border-bottom: 1px solid var(--border); vertical-align: top;
+}
+
+.roadmap-table tr:last-child td { border-bottom: none; }
+.roadmap-table tr:nth-child(even) td { background: var(--bg-light); }
+
+.effort-badge {
+  display: inline-block; font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 3px;
+}
+.effort-badge.low    { background: #dcfce7; color: #166534; }
+.effort-badge.medium { background: var(--med-bg); color: var(--med); }
+.effort-badge.high   { background: var(--crit-bg); color: var(--crit); }
+
+
+/* ================================================================
+   APPENDICES
+   ================================================================ */
+.appendix { margin-bottom: 28px; }
+
+.appendix-title {
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  padding-bottom: 8px; border-bottom: 2px solid var(--navy); margin-bottom: 16px;
+}
+
+.appendix-subtitle {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  color: var(--red); text-transform: uppercase; margin-bottom: 4px;
+}
+
+/* Generic data table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 16px; border: 1px solid var(--border-mid); }
+
+.data-table th {
+  background: var(--navy); color: white;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 12px; text-align: left;
+  border-right: 1px solid rgba(255,255,255,0.2);
+}
+.data-table th:last-child { border-right: none; }
+
+.data-table td {
+  padding: 8px 12px; color: var(--text-sub);
+  border-bottom: 1px solid var(--border); vertical-align: top;
+  border-right: 1px solid var(--border);
+}
+.data-table td:last-child { border-right: none; }
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: var(--bg-light); }
+
+.mitre-table .tactic-cell { font-size: 9px; font-weight: 600; color: #1d4ed8; font-family: var(--font-mono); }
+
+.version-row td:first-child { font-family: var(--font-mono); font-weight: 600; color: var(--red); }
+
+/* ================================================================
+   MARKDOWN CONTENT (used inside field-value)
+   ================================================================ */
+.md-content h1 { font-size: 14px; margin: 12px 0 6px; color: var(--navy); }
+.md-content h2 { font-size: 12px; margin: 10px 0 5px; color: var(--navy); }
+.md-content h3 { font-size: 11px; margin: 8px 0 4px; }
+.md-content p  { color: var(--text-sub); margin: 0 0 7px; }
+.md-content ul, .md-content ol { color: var(--text-sub); margin: 0 0 7px; }
+.md-content pre {
+  background: #f3f4f6; border: 1px solid var(--border); border-radius: 4px;
+  padding: 10px 12px; font-family: var(--font-mono); font-size: 9.5px;
+  color: #1f2937; white-space: pre-wrap; word-break: break-word; margin: 6px 0 10px;
+}
+.md-content code { background: #f3f4f6; color: #1f2937; }
+
+/* Clickable links in rendered Markdown — display:inline-block gives Chromium a
+   single bounding box to annotate rather than per-line boxes, so clicking any
+   line of a wrapped link works in the generated PDF. */
+.md-content a { display: inline-block; vertical-align: baseline; color: #1a7dd9; }

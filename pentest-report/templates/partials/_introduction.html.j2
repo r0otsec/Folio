@@ -1,0 +1,142 @@
+{# ── INTRODUCTION ─────────────────────────────────────────────────────────────
+   Sits between TOC and Executive Summary. Covers objective, approach, scope,
+   methodology, testing team, caveats, and authorisation.
+───────────────────────────────────────────────────────────────────────────── #}
+{% set intro = report.introduction or {} %}
+{% set scope = report.scope or {} %}
+
+<div class="report-section page-break" id="introduction">
+
+  <h2 class="plain-section-title">Introduction</h2>
+
+  {# ── Opening preamble — no heading, plain prose ─────────── #}
+  {% if intro.preamble_html %}
+  <div class="finding-section-body md-content" style="margin-bottom:22px">
+    {{ intro.preamble_html | safe }}
+  </div>
+  {% endif %}
+
+  {# ── Engagement Objective ────────────────────────────────── #}
+  {% if intro.objective_html %}
+  <div class="finding-section-label">Engagement Objective</div>
+  <div class="finding-section-body md-content" style="margin-bottom:22px">
+    {{ intro.objective_html | safe }}
+  </div>
+  {% endif %}
+
+  {# ── Assessment Approach ─────────────────────────────────── #}
+  {% if intro.approach_html %}
+  <div class="finding-section-label">Assessment Approach</div>
+  <div class="finding-section-body md-content" style="margin-bottom:22px">
+    {{ intro.approach_html | safe }}
+  </div>
+  {% endif %}
+
+  {# ── Scope ───────────────────────────────────────────────── #}
+  {% if scope.targets %}
+  <div class="finding-section-label">Scope</div>
+  <div style="margin-bottom:22px">
+
+    <table class="intro-scope-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>In-Scope Targets</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category, hosts in scope.targets.items() %}
+        {% if category != 'out_of_scope' %}
+        <tr>
+          <td class="intro-scope-cat">{{ category | replace('_', ' ') | title }}</td>
+          <td>
+            <ul class="intro-scope-list">
+              {% for host in hosts %}
+              <li>{{ host }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if scope.targets.out_of_scope %}
+    <div style="margin-top:12px">
+      <p style="font-size:10px;font-weight:700;color:var(--navy);margin:0 0 5px;
+                text-transform:uppercase;letter-spacing:0.05em">Out of Scope</p>
+      <ul style="margin:0;padding-left:18px;font-size:10.5px;color:var(--text-sub);line-height:1.7">
+        {% for item in scope.targets.out_of_scope %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+  {# ── Methodology & Standards ─────────────────────────────── #}
+  {% if scope.methodology %}
+  <div class="finding-section-label">Methodology & Standards Applied</div>
+  <div style="margin-bottom:22px">
+    <ul style="margin:0;padding-left:18px;font-size:10.5px;color:var(--text-sub);line-height:1.8">
+      {% for standard in scope.methodology %}
+      <li>{{ standard }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {# ── Testing Team & Dates ─────────────────────────────────── #}
+  {% if intro.testing_team or intro.testing_dates %}
+  <div class="finding-section-label">Testing Team &amp; Dates</div>
+  <div style="margin-bottom:22px">
+    {% if intro.testing_team %}
+    <table class="intro-team-table">
+      <thead>
+        <tr><th>Name</th><th>Role</th></tr>
+      </thead>
+      <tbody>
+        {% for member in intro.testing_team %}
+        <tr>
+          <td>{{ member.name }}</td>
+          <td>{{ member.role }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% if intro.testing_dates %}
+    <p style="margin:10px 0 0;font-size:10.5px;color:var(--text-sub)">
+      Testing was conducted between
+      <strong>{{ intro.testing_dates.start | fmt_date }}</strong>
+      and
+      <strong>{{ intro.testing_dates.end | fmt_date }}</strong>.
+    </p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ── Caveats & Limitations ────────────────────────────────── #}
+  {% if intro.caveats %}
+  <div class="finding-section-label">Caveats &amp; Limitations</div>
+  <div style="margin-bottom:22px">
+    <ul style="margin:0;padding-left:18px;font-size:10.5px;color:var(--text-sub);line-height:1.8">
+      {% for caveat in intro.caveats %}
+      <li>{{ caveat }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {# ── Authorisation ────────────────────────────────────────── #}
+  {% if intro.authorization_html %}
+  <div class="finding-section-label">Authorisation</div>
+  <div class="finding-section-body md-content">
+    {{ intro.authorization_html | safe }}
+  </div>
+  {% endif %}
+
+</div>{# /introduction #}

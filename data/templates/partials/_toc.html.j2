@@ -1,0 +1,102 @@
+{# ── TABLE OF CONTENTS ──────────────────────────────────────────────────────── #}
+{# The <a> element IS the row — gives it a real rendered box so Chromium        #}
+{# generates a proper PDF link annotation on the full row, not just the text.   #}
+<div class="toc-page page-break">
+
+  <h1 class="toc-heading">Contents</h1>
+
+  <div class="toc-body">
+
+    {# ── Fixed report sections ───────────────────────────────── #}
+    <a class="toc-row toc-main toc-link" href="#introduction">
+      <span class="toc-label">Introduction</span>
+      <span class="toc-leader"></span>
+    </a>
+
+    <a class="toc-row toc-main toc-link" href="#executive-summary">
+      <span class="toc-label">Executive Summary</span>
+      <span class="toc-leader"></span>
+    </a>
+    <a class="toc-row toc-sub toc-link" href="#executive-summary">
+      <span class="toc-label">Management Summary</span>
+      <span class="toc-leader"></span>
+    </a>
+    <a class="toc-row toc-sub toc-link" href="#executive-summary">
+      <span class="toc-label">Technical Summary</span>
+      <span class="toc-leader"></span>
+    </a>
+
+    <a class="toc-row toc-main toc-link" href="#finding-overview">
+      <span class="toc-label">Technical Findings Overview</span>
+      <span class="toc-leader"></span>
+    </a>
+
+    {# Sub-rows: phase sections under Technical Findings Overview #}
+    {% for section in report.enabled_sections %}
+    <a class="toc-row toc-sub toc-link" href="#finding-{{ section.findings[0].id | lower if section.findings else '' }}">
+      <span class="toc-label">Phase {{ loop.index }}: {{ section.title }}</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% endfor %}
+
+    {# ── Exploitation Scenarios ───────────────────────────────── #}
+    {% if report.exploitation_scenarios %}
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#exploitation-scenarios">
+      <span class="toc-label">Exploitation Scenarios / Significant Findings</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% for scenario in report.exploitation_scenarios %}
+    {% if scenario.get('enabled', true) %}
+    <a class="toc-row toc-sub toc-link" href="#exploit-{{ scenario.id | lower }}">
+      <span class="toc-label">{{ scenario.id }} — {{ scenario.title }}</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {# ── Assessment sections (Phase N) — link to first finding for accurate page # #}
+    {% for section in report.enabled_sections %}
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#finding-{{ section.findings[0].id | lower if section.findings else '' }}">
+      <span class="toc-label">Phase {{ loop.index }}: {{ section.title }}</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% if section.findings %}
+    {% for finding in section.findings %}
+    <a class="toc-row toc-sub toc-link" href="#finding-{{ finding.id | lower }}">
+      <span class="toc-label toc-finding-ref">{{ finding.id }}</span>
+      <span class="toc-label toc-finding-title">{{ finding.title }}</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+
+    {# ── Remediation Roadmap ─────────────────────────────────── #}
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#remediation-roadmap">
+      <span class="toc-label">Remediation Roadmap</span>
+      <span class="toc-leader"></span>
+    </a>
+
+    {# ── Appendices — letters shift if tools_used is empty ─── #}
+    {% set has_tools = report.tools_used and report.tools_used | length > 0 %}
+    {% set eng_letter  = 'B' if has_tools else 'A' %}
+    {% set risk_letter = 'C' if has_tools else 'B' %}
+    {% if has_tools %}
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#appendix-a">
+      <span class="toc-label">Appendix A: Additional Technical Data</span>
+      <span class="toc-leader"></span>
+    </a>
+    {% endif %}
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#appendix-{{ eng_letter | lower }}">
+      <span class="toc-label">Appendix {{ eng_letter }}: Engagement Information</span>
+      <span class="toc-leader"></span>
+    </a>
+    <a class="toc-row toc-main toc-link" style="margin-top:4px" href="#appendix-{{ risk_letter | lower }}">
+      <span class="toc-label">Appendix {{ risk_letter }}: Risk Rating Methodology</span>
+      <span class="toc-leader"></span>
+    </a>
+
+  </div>{# /toc-body #}
+
+</div>
