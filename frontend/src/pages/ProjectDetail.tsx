@@ -173,6 +173,19 @@ export default function ProjectDetail() {
     })
   }
 
+  // Flush any pending debounced save immediately before PDF generation
+  const flushSave = async (proj: PD) => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current)
+      saveTimer.current = null
+    }
+    await api.projects.update(projectId, {
+      name: proj.name, report_id: proj.report_id,
+      client_name: proj.client_name, status: proj.status,
+      report_data: proj.report_data,
+    })
+  }
+
   const setMeta = (path: string, value: string) =>
     setReportData(rd => deepSet(rd as unknown as Record<string, unknown>, `meta.${path}`, value))
 
@@ -187,6 +200,7 @@ export default function ProjectDetail() {
     setPreviewing(true)
     setPreviewOpen(true)
     try {
+      await flushSave(project)
       const blob = await api.projects.generatePdf(projectId)
       if (previewUrl) URL.revokeObjectURL(previewUrl)
       setPreviewName(pdfFilename())
@@ -201,6 +215,7 @@ export default function ProjectDetail() {
     if (!project) return
     setPreviewing(true)
     try {
+      await flushSave(project)
       const blob = await api.projects.generatePdf(projectId)
       if (previewUrl) URL.revokeObjectURL(previewUrl)
       setPreviewName(pdfFilename())
@@ -224,6 +239,7 @@ export default function ProjectDetail() {
     if (!project) return
     setGenerating(true)
     try {
+      await flushSave(project)
       const blob = await api.projects.generatePdf(projectId)
       downloadBlob(blob, `${project.report_id || 'report'}-${(project.client_name || project.name).toLowerCase().replace(/\s+/g, '-')}.pdf`)
       showToast('PDF downloaded')
@@ -1548,6 +1564,7 @@ export default function ProjectDetail() {
                             background: active ? 'rgba(26,125,217,0.08)' : 'var(--c-surface)',
                           }}
                         >
+                          {/* Mini cover preview */}
                           <div style={{
                             width: 52, height: 68, borderRadius: 3, overflow: 'hidden', position: 'relative',
                             background: style === 'dark' ? '#0d1117' : '#ffffff',
