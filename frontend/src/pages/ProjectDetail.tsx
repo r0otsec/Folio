@@ -1531,6 +1531,46 @@ export default function ProjectDetail() {
                   </p>
                 </div>
 
+                {/* Cover style */}
+                <div style={{ marginBottom: 20 }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-text-3)', marginBottom: 10 }}>Cover Style</p>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    {(['dark', 'light'] as const).map(style => {
+                      const active = (rd.cover_style ?? 'dark') === style
+                      return (
+                        <button
+                          key={style}
+                          onClick={() => setReportData(r => ({ ...r, cover_style: style }))}
+                          style={{
+                            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                            gap: 8, padding: '12px 8px', borderRadius: 6, cursor: 'pointer',
+                            border: active ? '2px solid var(--c-blue)' : '2px solid var(--c-border)',
+                            background: active ? 'rgba(26,125,217,0.08)' : 'var(--c-surface)',
+                          }}
+                        >
+                          <div style={{
+                            width: 52, height: 68, borderRadius: 3, overflow: 'hidden', position: 'relative',
+                            background: style === 'dark' ? '#0d1117' : '#ffffff',
+                            border: '1px solid var(--c-border)',
+                            borderTop: style === 'light' ? '3px solid #e63946' : '1px solid var(--c-border)',
+                            borderLeft: style === 'dark' ? '3px solid #e63946' : '1px solid var(--c-border)',
+                          }}>
+                            <div style={{ padding: '8px 5px 5px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                              <div style={{ width: 20, height: 2, background: '#e63946', borderRadius: 1 }} />
+                              <div style={{ width: 28, height: 3, background: style === 'dark' ? 'rgba(240,246,252,0.8)' : '#111827', borderRadius: 1 }} />
+                              <div style={{ width: 22, height: 2, background: style === 'dark' ? 'rgba(139,148,158,0.5)' : 'rgba(75,85,99,0.5)', borderRadius: 1 }} />
+                              <div style={{ width: 18, height: 2, background: style === 'dark' ? 'rgba(139,148,158,0.3)' : 'rgba(75,85,99,0.3)', borderRadius: 1, marginTop: 4 }} />
+                            </div>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 500, color: active ? 'var(--c-blue)' : 'var(--c-text-2)' }}>
+                            {style === 'dark' ? 'Dark' : 'Light'}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
                 <button
                   className="btn btn-primary"
                   style={{ width: '100%', justifyContent: 'center', padding: '12px' }}

@@ -1121,6 +1121,7 @@ def _blank_report(name, report_id, client_name, client_id=None, db=None) -> dict
         "exploitation_scenarios": [],
         "remediation_roadmap": {},
         "appendices": [],
+        "cover_style": "dark",
     }
 
 

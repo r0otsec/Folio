@@ -164,6 +164,7 @@ export interface ReportData {
   remediation_roadmap?: RemediationRoadmap
   tools_used?: ToolEntry[]
   appendices: Appendix[]
+  cover_style?: 'dark' | 'light'
 }
 
 export interface ExploitScenario {
