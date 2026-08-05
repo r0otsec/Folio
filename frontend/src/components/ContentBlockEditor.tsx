@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Camera, Code2, Eye, EyeOff, FileText, GripVertical, Loader2, Plus, X } from 'lucide-react'
+import { Camera, Code2, Eye, EyeOff, FileText, GripVertical, Loader2, Plus, Table2, X } from 'lucide-react'
 import type { ContentBlock } from '../types'
 import { api } from '../api'
 
@@ -19,11 +19,12 @@ interface InsertPointProps {
   uploading: boolean
   canUpload: boolean
   onInsertText: (position: number) => void
+  onInsertTable: (position: number) => void
   onInsertCode: (position: number) => void
   onInsertScreenshot: (position: number, file: File) => void
 }
 
-function InsertPoint({ position, uploading, canUpload, onInsertText, onInsertCode, onInsertScreenshot }: InsertPointProps) {
+function InsertPoint({ position, uploading, canUpload, onInsertText, onInsertTable, onInsertCode, onInsertScreenshot }: InsertPointProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +62,15 @@ function InsertPoint({ position, uploading, canUpload, onInsertText, onInsertCod
           >
             <FileText size={11} style={{ color: 'var(--c-text-3)' }} />
             Text
+          </button>
+          <button
+            style={btnStyle}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--c-border-2)'; e.currentTarget.style.background = 'var(--c-surface-2)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--c-border-2)'; e.currentTarget.style.background = 'var(--c-surface)' }}
+            onClick={() => onInsertTable(position)}
+          >
+            <Table2 size={11} style={{ color: 'var(--c-text-3)' }} />
+            Table
           </button>
           <button
             style={btnStyle}
@@ -171,6 +181,17 @@ export default function ContentBlockEditor({ blocks, projectId, onChange, placeh
     }, 50)
   }
 
+  const handleInsertTable = (position: number) => {
+    insertBlock(position, {
+      type: 'text',
+      content: '| Column 1 | Column 2 | Column 3 |\n|---|---|---|\n| Row 1 | Data | Data |\n| Row 2 | Data | Data |',
+    })
+    setTimeout(() => {
+      const textareas = document.querySelectorAll<HTMLTextAreaElement>('[data-block-textarea]')
+      if (textareas[position]) textareas[position].focus()
+    }, 50)
+  }
+
   const handleInsertCode = (position: number) => {
     insertBlock(position, { type: 'code', language: 'bash', content: '', highlight_lines: [], label: '', caption: '' })
   }
@@ -192,6 +213,7 @@ export default function ContentBlockEditor({ blocks, projectId, onChange, placeh
         uploading={uploadingAt === 0}
         canUpload={!!projectId}
         onInsertText={handleInsertText}
+        onInsertTable={handleInsertTable}
         onInsertCode={handleInsertCode}
         onInsertScreenshot={handleInsertScreenshot}
       />
@@ -248,6 +270,7 @@ export default function ContentBlockEditor({ blocks, projectId, onChange, placeh
             uploading={uploadingAt === idx + 1}
             canUpload={!!projectId}
             onInsertText={handleInsertText}
+            onInsertTable={handleInsertTable}
             onInsertCode={handleInsertCode}
             onInsertScreenshot={handleInsertScreenshot}
           />
