@@ -354,7 +354,7 @@
   {
     "title": "AD CS - ESC1 Misconfiguration (Enrollee Supplies Subject)",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "An Active Directory Certificate Services (AD CS) certificate template is configured with the CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT flag, allowing the enrollee to specify an arbitrary Subject Alternative Name (SAN) in the certificate request. Combined with enrolment permissions granted to unprivileged users and manager approval not being required, this allows any enrolled user to obtain a certificate for any identity in the domain, including Domain Administrators.",
     "impact": "An attacker with enrolment rights on the affected template may be able to request a certificate specifying a Domain Administrator's User Principal Name as the Subject Alternative Name. The resulting certificate can be used to authenticate as that user via Kerberos PKINIT or NTLM, fully compromising the targeted account and potentially the entire domain without requiring the target's credentials or password.",
     "recommendations": "Remove the CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT flag from certificate templates where it is not strictly necessary. If the flag must remain, require CA manager approval for all certificate requests using that template. Audit all AD CS templates using tooling such as Certify or PKIAudit to identify ESC1 and related misconfigurations.",
@@ -370,7 +370,7 @@
   {
     "title": "AD CS ESC4 – Vulnerable Certificate Template ACL",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more Active Directory certificate templates have misconfigured Access Control Lists (ACLs), granting low-privileged users or domain computers write permissions over the template object itself. An attacker with such permissions can modify the template configuration, introducing exploitation paths such as ESC1, ESC2, or ESC3.",
     "impact": "An attacker with write access to a certificate template ACL may be able to modify the template to introduce a Subject Alternative Name field, remove CA Manager Approval requirements, or alter EKUs, then request certificates that allow authentication as any domain account including Domain Administrators.",
     "recommendations": "Review and restrict ACLs on all certificate template objects in Active Directory. Only CA Administrators should hold GenericAll, GenericWrite, WriteProperty, or WriteDACL over template objects. Use PSPKIAudit or Certify /vulnerable to identify misconfigured templates.",
@@ -388,7 +388,7 @@
   {
     "title": "AD CS ESC5 – Vulnerable PKI Object Access Control",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Active Directory objects related to the PKI infrastructure, including the Certificate Authority object, NTAuthCertificates store, or Root CA objects, have overly permissive ACLs granting write or ownership rights to low-privileged principals. Modifying these objects can allow an attacker to trust arbitrary certificates or alter the CA configuration.",
     "impact": "An attacker with write permissions over PKI-related AD objects may be able to register a rogue Certificate Authority or modify the NTAuthCertificates store, enabling the issuance and trusting of arbitrary certificates that authenticate as any domain user, resulting in complete domain compromise.",
     "recommendations": "Audit ACLs on CN=Public Key Services,CN=Services,CN=Configuration and all child objects. Ensure only Enterprise Admins and Domain Admins hold write permissions. Monitor changes to these objects using event ID 5136.",
@@ -406,7 +406,7 @@
   {
     "title": "AD CS ESC6 – EDITF_ATTRIBUTESUBJECTALTNAME2 Flag Enabled",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Certificate Authority has the EDITF_ATTRIBUTESUBJECTALTNAME2 flag enabled in its policy module configuration. This flag permits requesters to specify an arbitrary Subject Alternative Name (SAN) in any certificate request, regardless of the template configuration, enabling any enrolled user to obtain a certificate for any identity in the domain.",
     "impact": "An attacker with any certificate enrolment rights may be able to request a certificate specifying a privileged account's UPN in the SAN field, obtain a valid authentication certificate for that account, and authenticate to the domain as a Domain Administrator without requiring their credentials.",
     "recommendations": "Disable the EDITF_ATTRIBUTESUBJECTALTNAME2 flag using: certutil -config \"CA\\CA Name\" -setreg policy\\EditFlags -EDITF_ATTRIBUTESUBJECTALTNAME2, then restart the CertSvc service. After applying KB5014754, enforce the StrongCertificateBindingEnforcement registry key.",
@@ -424,7 +424,7 @@
   {
     "title": "DCShadow Attack",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "DCShadow is an attack technique that allows an attacker with Domain Admin-level privileges to register a rogue domain controller within Active Directory and use it to push arbitrary changes to AD objects — including modifying ACLs, adding SIDHistory values, or altering group membership — without generating standard AD replication audit events.",
     "impact": "An attacker with sufficient privileges may be able to introduce arbitrary changes to Active Directory, such as granting domain dominance to a controlled account or injecting malicious objects, while evading detection mechanisms that rely on standard LDAP change auditing, potentially maintaining persistent covert control of the domain.",
     "recommendations": "Monitor for registration of unexpected domain controllers (event IDs 4742, 4929). Implement advanced AD change auditing using Microsoft Defender for Identity or equivalent tooling that monitors DRS events. Regularly audit AD replication permissions and review domain controller OU membership.",
@@ -442,7 +442,7 @@
   {
     "title": "DCSync Attack Path",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more accounts outside of Domain Controllers have been granted replication rights on the domain root object, including the Replicating Directory Changes and Replicating Directory Changes All permissions. These permissions allow an account to request password data for all domain objects, effectively replicating the NTDS.dit database.",
     "impact": "An attacker who compromises an account with these replication rights may be able to perform a DCSync attack, extracting the NTLM hashes and Kerberos keys for all user accounts in the domain, including the KRBTGT account. This would allow the attacker to fully compromise the domain by forging Kerberos tickets (Golden Ticket) or performing pass-the-hash attacks against any account.",
     "recommendations": "Remove replication permissions from all accounts that are not Domain Controllers. Audit the ACL on the domain root object and restrict Replicating Directory Changes permissions to legitimate DC computer accounts only. Monitor for DCSync activity using Mimikatz detection rules in SIEM tooling.",
@@ -458,7 +458,7 @@
   {
     "title": "Dangerous ACL - GenericAll / WriteDACL on Privileged Objects",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more unprivileged accounts have been granted overly permissive access control list (ACL) entries on sensitive Active Directory objects such as users, groups, or the domain root. Permissions such as GenericAll, WriteDACL, WriteOwner, or GenericWrite on privileged objects can be abused to escalate privileges within the domain.",
     "impact": "An attacker who compromises an account with dangerous ACL permissions on privileged AD objects may be able to modify the target object's properties, reset passwords, add members to privileged groups, or grant themselves additional permissions. This can enable direct escalation to Domain Admin or equivalent privilege without exploiting any technical vulnerability in the operating system or application software.",
     "recommendations": "Audit Active Directory ACLs using tooling such as BloodHound to identify non-standard or excessive permissions on sensitive objects. Remove any permissions that are not required for a legitimate business purpose and apply the principle of least privilege to all AD object permissions. Monitor for ACL modifications on sensitive objects using event IDs 5136 and 4662.",
@@ -474,7 +474,7 @@
   {
     "title": "Diamond Ticket Attack",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "A Diamond Ticket is a stealthier variant of the Golden Ticket technique in which an attacker with the KRBTGT key decrypts a legitimate TGT, modifies the PAC (Privilege Attribute Certificate) to include elevated privileges, re-encrypts it, and reuses the original ticket's metadata. Diamond Tickets inherit legitimate ticket characteristics that evade anomaly-detection controls tuned for forged tickets.",
     "impact": "An attacker in possession of the KRBTGT key may be able to create Diamond Tickets that are significantly harder to detect than standard Golden Tickets, providing persistent, stealthy privileged access to all domain resources while bypassing monitoring tools that look for forged ticket metadata anomalies.",
     "recommendations": "Treat KRBTGT compromise identically to a Golden Ticket — rotate KRBTGT twice, audit all Tier 0 access, and review domain controller security. Implement advanced Kerberos logging (event ID 4769) and use detection tooling that identifies unusual PAC modifications rather than relying solely on ticket metadata anomalies.",
@@ -492,7 +492,7 @@
   {
     "title": "Golden Ticket Attack",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "During the assessment, sufficient privileges were obtained to extract the NTLM hash or AES keys of the KRBTGT account, which is used to sign all Kerberos Ticket Granting Tickets (TGTs) in the domain. An attacker in possession of this secret can forge valid TGTs for any account in the domain without interacting with a domain controller.",
     "impact": "An attacker with the KRBTGT hash may be able to forge Kerberos tickets for any domain user or service, including non-existent accounts, with arbitrary group memberships and ticket lifetimes up to ten years. This provides persistent, effectively unlimited access to all domain resources and survives password resets of every account except KRBTGT itself.",
     "recommendations": "Rotate the KRBTGT account password twice in succession to invalidate all existing tickets, using Microsoft's KRBTGT Account Reset scripts. Ensure only Tier 0 administrators can access domain controllers. Implement Credential Guard to protect KRBTGT secrets in memory. Conduct a full incident response investigation.",
@@ -510,7 +510,7 @@
   {
     "title": "PrintSpooler Service Enabled on Domain Controllers",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Print Spooler service is running on one or more Domain Controllers. The service is vulnerable to the PrinterBug/PrintNightmare family of vulnerabilities and can be abused to coerce Domain Controller authentication to an attacker-controlled host via the MS-RPRN or MS-PAR protocols.",
     "impact": "An attacker with any domain account can coerce a Domain Controller to authenticate to an attacker-controlled host using the Print Spooler service. Combined with unconstrained delegation, NTLM relay attacks, or AD CS ESC8, this can lead to full domain compromise without requiring any existing elevated privileges.",
     "recommendations": "Disable the Print Spooler service on all Domain Controllers and other Tier 0 assets where printing is not required. Apply all available patches for PrintNightmare (CVE-2021-1675, CVE-2021-34527) and related vulnerabilities. If the service must remain enabled, use the Point and Print Restrictions Group Policy to limit exposure.",
@@ -526,7 +526,7 @@
   {
     "title": "Skeleton Key / KDC Backdoor",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "A Skeleton Key is an in-memory malware implant that patches the LSASS process on a domain controller to accept a universal master password for any account in addition to the account's legitimate password. This technique, associated with tools such as Mimikatz and advanced threat actors, does not persist across reboots but provides immediate credential-free access to all domain accounts.",
     "impact": "An attacker who deploys a Skeleton Key patch on a domain controller may be able to authenticate as any domain user using a known master password without knowing individual account credentials, providing complete access to all domain resources until the domain controller is rebooted and the in-memory patch is cleared.",
     "recommendations": "Add all Tier 0 and privileged accounts to the Protected Users security group, which prevents Skeleton Key from being effective for those accounts. Monitor domain controller LSASS process integrity via EDR. Deploy Microsoft Defender for Identity to detect anomalous authentication patterns indicative of Skeleton Key presence.",
@@ -544,7 +544,7 @@
   {
     "title": "Writable GPO by Low-Privileged User",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more Group Policy Objects (GPOs) applied to a significant portion of the domain can be modified by accounts that should not have write access to them. GPOs define configuration and security policy for all systems and users within their scope, and the ability to modify them provides a direct path to code execution on affected systems.",
     "impact": "An attacker who compromises an account with write permissions on a GPO may be able to modify the policy to execute arbitrary code on all systems within the GPO's scope. This could include adding malicious logon scripts, deploying malware via software installation settings, or modifying security settings to weaken defences. Depending on the GPO's scope, this could affect hundreds or thousands of systems.",
     "recommendations": "Audit GPO permissions to ensure only Domain Admins or delegated administrators have write access to GPOs. Use the Group Policy Management Console to review each GPO's delegation settings and remove any non-standard permissions. Implement change monitoring for GPO modifications using event ID 5136.",
@@ -560,7 +560,7 @@
   {
     "title": "Zerologon - CVE-2020-1472",
     "severity": "critical",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more Domain Controllers are vulnerable to CVE-2020-1472 (Zerologon), a critical vulnerability in the Netlogon Remote Protocol (MS-NRPC). The vulnerability exists due to a flaw in the AES-CFB8 encryption mode used in the protocol, allowing an attacker to impersonate any domain-joined computer, including Domain Controllers.",
     "impact": "An attacker with network access to a vulnerable Domain Controller may be able to reset the machine account password of the Domain Controller to an empty string without any prior authentication. This allows the attacker to authenticate as the Domain Controller and perform a DCSync attack to extract all domain account hashes, resulting in complete domain compromise.",
     "recommendations": "Apply the August 2020 security updates (and subsequent updates) to all Domain Controllers immediately. Enable enforcement mode for the Netlogon changes via Group Policy once all clients are confirmed to be patched. Use available scanning tools to confirm the vulnerability has been remediated.",
@@ -576,7 +576,7 @@
   {
     "title": "AD CS - ESC8 (NTLM Relay to AD CS HTTP Enrolment)",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Active Directory Certificate Services (AD CS) Certificate Authority web enrolment interface (certsrv) or CES endpoint is accessible over HTTP and does not require extended protection for authentication. This allows NTLM relay attacks where an attacker coerces a privileged machine account to authenticate and relays that authentication to AD CS to obtain a certificate for the coerced account.",
     "impact": "An attacker may be able to coerce a Domain Controller computer account to authenticate via NTLM and relay that authentication to the AD CS HTTP endpoint to obtain a certificate for the Domain Controller. The resulting certificate can then be used with Kerberos PKINIT to authenticate as the Domain Controller, enabling DCSync or other domain compromise techniques.",
     "recommendations": "Enable Extended Protection for Authentication (EPA) on the IIS site hosting the AD CS web enrolment interface. Require HTTPS for all AD CS web enrolment endpoints and disable NTLM where possible. Consider migrating to the ADCS EST endpoint which uses HTTPS natively.",
@@ -592,7 +592,7 @@
   {
     "title": "AD CS ESC10 – Weak Certificate Mapping via UPN",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The domain is configured in Compatibility mode for certificate authentication, relying on the User Principal Name (UPN) in the Subject Alternative Name field for account mapping. An attacker who can modify their own UPN or that of a computer account via MachineAccountQuota to match a privileged user's UPN can obtain a certificate that maps to the target account.",
     "impact": "An attacker with the ability to modify user or computer UPN attributes may be able to obtain a certificate that authenticates as a Domain Administrator, enabling Kerberos authentication and privilege escalation without requiring the target account's credentials or hash.",
     "recommendations": "Enforce Full Enforcement mode for certificate authentication binding (StrongCertificateBindingEnforcement = 2). Restrict UPN modification rights to authorised administrators only. Ensure KB5014754 is fully applied and monitor for UPN modification events (Event ID 4738).",
@@ -609,7 +609,7 @@
   {
     "title": "AD CS ESC11 – NTLM Relay to AD CS RPC Endpoint",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The AD CS Certificate Authority is configured to allow certificate enrolment via the MS-ICPR (RPC) interface without requiring HTTPS or Extended Protection for Authentication. This permits an attacker performing NTLM relay attacks to relay incoming authentication to the CA's RPC endpoint and obtain a certificate on behalf of the relayed account.",
     "impact": "An attacker positioned on the internal network who is able to coerce NTLM authentication from a privileged account using PetitPotam or Coercer may be able to relay that authentication to the CA RPC interface and obtain a certificate authenticating as the coerced account, enabling privilege escalation or domain compromise.",
     "recommendations": "Enforce HTTPS for the CA RPC interface and enable Extended Protection for Authentication (EPA). Disable NTLM where possible or enforce SMB and LDAP signing to reduce the coercion attack surface.",
@@ -627,7 +627,7 @@
   {
     "title": "AD CS ESC2 – Any Purpose Certificate Template",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Active Directory Certificate Services (AD CS) environment contains certificate templates configured with the 'Any Purpose' Extended Key Usage (EKU) or SubCA configurations. These templates allow an enrolled principal to generate certificates for any purpose, including client authentication, which can be leveraged to authenticate as any user in the domain.",
     "impact": "An attacker with enrolment rights over an ESC2 template may be able to request a certificate that authenticates as any domain user, enabling lateral movement, privilege escalation, or complete domain compromise depending on the accounts impersonated.",
     "recommendations": "Remove the 'Any Purpose' EKU from certificate templates unless explicitly required. Audit all certificate templates using Certify or PSPKIAudit and apply the principle of least privilege to template enrolment permissions. Implement CA Manager Approval for sensitive templates.",
@@ -644,7 +644,7 @@
   {
     "title": "AD CS ESC3 – Enrollment Agent Certificate Abuse",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Certificate templates within the AD CS environment are configured to allow the Certificate Request Agent EKU (OID 1.3.6.1.4.1.311.20.2.1). A principal with enrolment rights can obtain an Enrollment Agent certificate and subsequently request certificates on behalf of any other user in the domain, including Domain Administrators.",
     "impact": "An attacker who obtains an Enrollment Agent certificate may be able to request authentication certificates on behalf of privileged domain accounts, enabling impersonation of Domain Administrators and facilitating complete domain compromise without requiring access to LSASS or direct credential theft.",
     "recommendations": "Restrict enrolment rights on templates containing the Certificate Request Agent EKU to authorised principals only. Implement Issuance Requirements such as CA Manager Approval or Authorised Signatures on agent-accessible templates. Regularly audit Enrollment Agent certificate holders.",
@@ -661,7 +661,7 @@
   {
     "title": "AD CS ESC7 – Vulnerable Certificate Authority Access Control",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Low-privileged users have been granted the ManageCA or ManageCertificates rights on the Certificate Authority itself. The ManageCA right allows a principal to modify CA configuration including enabling EDITF_ATTRIBUTESUBJECTALTNAME2. The ManageCertificates (Officer) right allows a principal to approve pending certificate requests.",
     "impact": "An attacker granted ManageCA rights may be able to enable the EDITF_ATTRIBUTESUBJECTALTNAME2 flag and subsequently request certificates for any domain identity. An attacker with the Officer role may be able to approve previously denied certificate requests, facilitating privilege escalation to Domain Administrator.",
     "recommendations": "Remove excessive CA management rights from non-administrative principals. Audit CA Officer and CA Manager assignments via the Certificate Authority MMC snap-in. Only Tier 0 administrators should hold ManageCA or ManageCertificates permissions.",
@@ -678,7 +678,7 @@
   {
     "title": "AD CS ESC9 – No Security Extension on Certificate Template",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Certificate templates within the AD CS environment have the CT_FLAG_NO_SECURITY_EXTENSION flag set, preventing newly issued certificates from embedding the requesting user's SID. When certificate-to-account mapping relies solely on UPN or other attributes, this permits certificate theft and relay attacks that bypass SID-based mitigations introduced by KB5014754.",
     "impact": "An attacker who obtains or forges a certificate issued under an ESC9-affected template may be able to authenticate as any user mapped to that certificate without the SID binding protections that would otherwise prevent relay or theft attacks, enabling privilege escalation even in partially patched environments.",
     "recommendations": "Remove the CT_FLAG_NO_SECURITY_EXTENSION flag from all certificate templates. Enforce the StrongCertificateBindingEnforcement registry key in Full Enforcement mode on all domain controllers and ensure KB5014754 is applied across the environment.",
@@ -695,7 +695,7 @@
   {
     "title": "ADIDNS Wildcard Record Injection",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Wildcard DNS records were injected into the Active Directory Integrated DNS (ADIDNS) zone using standard dynamic DNS update permissions available to all authenticated domain users by default. By creating a wildcard (*.domain.local) A record pointing to an attacker-controlled host, all DNS queries for non-existent hostnames in the domain resolve to the attacker's machine.",
     "impact": "An attacker who injects an ADIDNS wildcard record may be able to intercept NTLM authentication attempts destined for non-existent hostnames across the entire domain, capturing NTLMv2 challenge/response hashes for cracking or relay attacks, and performing man-in-the-middle attacks against domain-wide DNS queries without deploying a separate poisoning tool.",
     "recommendations": "Restrict dynamic DNS update permissions on ADIDNS zones to authorised administrators only, removing the default permission for authenticated users to create DNS records. Monitor ADIDNS for unexpected wildcard record creation (DNS Server Event ID 513). Disable 'Allow Dynamic Update' on internal DNS zones where not operationally required.",
@@ -713,7 +713,7 @@
   {
     "title": "AS-REP Roasting",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more domain accounts have Kerberos pre-authentication disabled, indicated by the 'Do not require Kerberos preauthentication' flag being set in Active Directory. This allows any unauthenticated user to request an AS-REP ticket for the affected account and receive an encrypted blob that can be cracked offline.",
     "impact": "An attacker without any domain credentials may be able to request AS-REP tickets for affected accounts and attempt to crack the encryption offline to recover the plaintext password. If successful, the attacker gains valid domain credentials, which can be used to authenticate to the domain and conduct further attacks including lateral movement and privilege escalation.",
     "recommendations": "Enable Kerberos pre-authentication on all accounts unless there is a specific technical requirement to disable it. Audit Active Directory regularly for accounts with this flag set and enforce strong, complex passwords on any accounts where pre-authentication cannot be enabled.",
@@ -728,7 +728,7 @@
   {
     "title": "Coerced Authentication via PetitPotam / Coercer",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Authentication coercion was successfully performed against domain controllers and member servers using PetitPotam (MS-EFSRPC abuse) and the Coercer framework. These tools send specially crafted RPC requests to target machines, causing them to authenticate outbound to an attacker-controlled host, providing NTLM authentication material for relay or offline cracking.",
     "impact": "An attacker positioned on the internal network may be able to coerce domain controllers to authenticate outbound, capture that authentication for relay to LDAP, LDAPS, or AD CS endpoints, obtain domain controller certificates enabling DCSync, or chain coercion with NTLM relay to AD CS for full domain compromise.",
     "recommendations": "Disable EFS RPC where not operationally required, or block inbound MS-EFSRPC connections on domain controllers. Enforce LDAP channel binding and LDAP signing to prevent relay to LDAP. Require HTTPS and Extended Protection for Authentication on AD CS web enrolment endpoints. Block outbound SMB/445 from domain controllers to non-DC hosts.",
@@ -745,7 +745,7 @@
   {
     "title": "Constrained Delegation with Protocol Transition (TrustedToAuthForDelegation)",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Service accounts were identified with the TrustedToAuthForDelegation (T2A4D) flag set, enabling Kerberos Constrained Delegation with Protocol Transition. This configuration allows the service account to obtain Kerberos service tickets for any user — including non-Kerberos authenticated users — to the permitted target services, effectively enabling impersonation of any domain user without requiring a forwarded TGT from that user.",
     "impact": "An attacker who compromises a service account with TrustedToAuthForDelegation may be able to impersonate any domain user, including Domain Administrators, to the services permitted by the delegation configuration, enabling unauthorised access to those target services in any user's context without requiring any interaction from, or credentials belonging to, the targeted accounts.",
     "recommendations": "Avoid Protocol Transition (T2A4D) unless strictly required by application architecture. Prefer standard constrained delegation or RBCD without Protocol Transition. Audit all accounts with TrustedToAuthForDelegation set: Get-ADUser -Filter {TrustedToAuthForDelegation -eq $True}. Mark all highly privileged accounts with 'Account is sensitive and cannot be delegated'.",
@@ -763,7 +763,7 @@
   {
     "title": "Constrained Kerberos Delegation Misconfiguration",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more accounts are configured with constrained Kerberos delegation, and specifically with protocol transition enabled (TrustedToAuthForDelegation). Protocol transition allows the service to obtain Kerberos service tickets for any user to the specified target services without requiring the user to authenticate to the service using Kerberos first.",
     "impact": "An attacker who compromises an account or service with protocol transition delegation may be able to obtain service tickets impersonating any user, including domain administrators, to the services listed in the delegation configuration. If the delegated services include high-value targets such as file servers, SQL servers, or domain controller services, this can result in significant privilege escalation.",
     "recommendations": "Review all accounts configured with protocol transition delegation and assess whether this configuration is genuinely required. Where possible, replace protocol transition delegation with resource-based constrained delegation, which provides more granular control. Sensitive accounts such as Domain Admins should be added to the Protected Users security group to prevent their tickets from being used in delegation scenarios.",
@@ -779,7 +779,7 @@
   {
     "title": "Domain Trust Misconfiguration",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Domain or forest trusts are configured in a way that may allow attackers to leverage compromise of one domain to attack a trusted domain. This includes transitive trusts, trusts without SID filtering enabled, or trusts that allow TGT delegation across domain boundaries.",
     "impact": "An attacker who has compromised accounts in one domain may be able to leverage trust relationships to access resources in trusted domains, or in the case of improperly configured SID filtering, to forge privilege attributes that are honoured by the trusted domain. In the most severe cases, compromise of a less-protected domain can lead to compromise of a more privileged trusted domain.",
     "recommendations": "Review all domain and forest trust configurations and ensure SID filtering (also known as Quarantine Mode) is enabled on external trusts. Assess whether all configured trusts are necessary and remove any that are not. For trusts that must remain, apply the principle of least privilege to determine what access should be permitted across trust boundaries.",
@@ -795,7 +795,7 @@
   {
     "title": "Domain Users Granted Local Administrator Rights",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "A significant number of domain user accounts have been granted local administrator rights on domain-joined systems, either directly or through group membership. This grants these users the ability to install software, modify system settings, and access protected memory on those systems.",
     "impact": "Domain users with local administrator rights can extract NTLM hashes and Kerberos tickets from LSASS on any system where they have admin rights, enabling lateral movement. If any privileged account has authenticated to a system where a local admin can dump credentials, the attacker can escalate to domain-level access. Widespread local admin rights also increases the blast radius of any phishing or malware compromise.",
     "recommendations": "Remove local administrator rights from standard domain user accounts. Implement tiered administration models where elevated access is granted through separate privileged accounts. Deploy Microsoft LAPS to manage local administrator accounts, and use Just-In-Time (JIT) administration approaches for tasks that require temporary elevation.",
@@ -811,7 +811,7 @@
   {
     "title": "Kerberoasting",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Service accounts with SPNs registered in Active Directory can have their TGS tickets requested by any authenticated domain user and cracked offline to recover plaintext passwords.",
     "impact": "An attacker with any level of domain authentication may request service tickets for accounts with registered SPNs and attempt to crack them offline without generating significant alerts. If successful, the recovered plaintext credentials could be used to authenticate as the service account, potentially enabling access to sensitive systems or escalation of privileges within the domain.",
     "recommendations": "Use managed service accounts (gMSA). Enforce strong, regularly rotated passwords (25+ chars) on service accounts.",
@@ -826,7 +826,7 @@
   {
     "title": "LDAP Anonymous Bind Enabled",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Domain Controller permits unauthenticated LDAP binds, allowing anonymous users to query the directory without providing credentials. By default, Windows Server should restrict anonymous LDAP access, but misconfigurations or legacy settings can re-enable it.",
     "impact": "An attacker without domain credentials may be able to query Active Directory via LDAP to enumerate user accounts, computer objects, group memberships, and other directory information. This information can be used to identify attack targets, find accounts for password spraying, or enumerate the structure of the domain to plan further attacks.",
     "recommendations": "Ensure that anonymous LDAP access is disabled on all Domain Controllers. Configure the DSHeuristics attribute to disable anonymous LDAP access and ensure the default LDAP security settings have not been weakened. Verify that the DsHeuristics attribute value does not permit anonymous LDAP operations.",
@@ -842,7 +842,7 @@
   {
     "title": "LDAP Signing Not Enforced on Domain Controllers",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Domain Controllers are not configured to require LDAP signing, and LDAP channel binding is not enforced. Without LDAP signing, NTLM authentication to the LDAP service can be relayed from a coerced or intercepted connection, allowing an attacker to make authenticated changes to Active Directory using the victim's credentials.",
     "impact": "An attacker in a position to coerce NTLM authentication from a privileged host and relay it to the LDAP port on a Domain Controller may be able to make arbitrary changes to Active Directory, including adding users to privileged groups, modifying ACLs, creating new accounts, or performing Resource-Based Constrained Delegation attacks. If the coerced account is a Domain Controller or domain administrator, this can lead to full domain compromise.",
     "recommendations": "Enable LDAP signing and LDAP channel binding on all Domain Controllers via Group Policy (Domain Controller: LDAP server signing requirements = Require signing). Ensure LDAP clients are also configured to use signing to prevent compatibility issues. Microsoft's ADV190023 advisory and subsequent guidance provides detailed remediation steps.",
@@ -858,7 +858,7 @@
   {
     "title": "LLMNR / NBT-NS Poisoning",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Link-Local Multicast Name Resolution (LLMNR) and NetBIOS Name Service (NBT-NS) are enabled on the network, allowing an attacker to respond to failed DNS lookups and capture NTLMv2 hashes from victim hosts.",
     "impact": "An attacker positioned on the local network segment may capture NTLMv2 credential hashes from victim hosts. These hashes can be cracked offline to recover plaintext passwords or relayed directly to authenticate to other systems, potentially providing a foothold for lateral movement across the domain.",
     "recommendations": "Disable LLMNR and NBT-NS via Group Policy. Enable DNS-only name resolution.",
@@ -873,7 +873,7 @@
   {
     "title": "MachineAccountQuota Misconfiguration",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The ms-DS-MachineAccountQuota attribute on the domain root object is set to a non-zero value (default is 10), allowing any authenticated domain user to create up to that number of computer accounts in the domain. Attacker-controlled computer accounts can be used in a range of attacks including Resource-Based Constrained Delegation (RBCD).",
     "impact": "An attacker with any domain credentials may be able to create a computer account in the domain and use it as a controlled object for Resource-Based Constrained Delegation attacks, potentially enabling them to impersonate any user to any service on a target system. This provides a significant privilege escalation path that requires only low-level domain access.",
     "recommendations": "Set the ms-DS-MachineAccountQuota attribute on the domain root object to 0 to prevent standard users from creating computer accounts. Manage computer account creation through a controlled delegation process, granting the right to join computers to the domain to specific accounts or groups only as needed.",
@@ -889,7 +889,7 @@
   {
     "title": "NTLM Relay Attack Surface",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The environment presents a broad NTLM relay attack surface due to a combination of factors including SMB signing not being enforced, NTLM authentication being permitted, and the presence of services that can be abused to coerce authentication. These conditions allow an attacker to intercept NTLM authentication and relay it to other systems.",
     "impact": "An attacker positioned on the network may be able to intercept NTLM authentication from other hosts and relay it to services that do not enforce signing, authenticating as the victim and performing actions with their privileges. In environments where domain administrator accounts authenticate to workstations or other systems, a successful relay attack can directly result in domain compromise.",
     "recommendations": "Enforce SMB signing on all systems, disable NTLM where possible or restrict it using Group Policy, and enable Extended Protection for Authentication (EPA) on HTTP services. Implement network segmentation to prevent direct SMB traffic between workstations. Monitor for NTLM relay indicators such as Responder and ntlmrelayx tool signatures in EDR telemetry.",
@@ -905,7 +905,7 @@
   {
     "title": "NTLMv1 Authentication Enabled",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The environment permits the use of NTLMv1 authentication, an older and significantly weaker version of the NTLM protocol. NTLMv1 uses DES-based encryption and is vulnerable to offline cracking attacks that are computationally trivial with modern hardware, including rainbow table attacks.",
     "impact": "An attacker who is able to capture NTLMv1 challenge-response data through network interception or a relay attack may be able to rapidly crack the authentication material to recover the plaintext password. NTLMv1 responses can be cracked using precomputed rainbow tables in seconds, regardless of password complexity, substantially lowering the bar for credential compromise.",
     "recommendations": "Configure the LAN Manager Authentication Level via Group Policy to 'Send NTLMv2 response only, refuse LM & NTLM' (level 5). Audit systems that may be generating NTLMv1 traffic, which is often caused by legacy applications or misconfigured services, and update or replace them. Monitor event logs for NTLMv1 usage.",
@@ -921,7 +921,7 @@
   {
     "title": "No Multi-Factor Authentication for Privileged Domain Accounts",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Privileged Active Directory accounts including Domain Admins, Enterprise Admins, and other high-privilege groups do not require multi-factor authentication. These accounts represent the highest value targets in the domain and should be subject to the strongest available authentication controls.",
     "impact": "An attacker who obtains the credentials of a privileged domain account through phishing, password spraying, credential dumping, or any other technique can immediately use those credentials to authenticate and exercise full domain-level privileges. Without MFA, there is no additional barrier that would prevent an attacker from leveraging compromised credentials to achieve domain compromise.",
     "recommendations": "Implement multi-factor authentication for all privileged domain accounts. For on-premises Active Directory, consider deploying Windows Hello for Business, smart card authentication, or a third-party MFA solution integrated with Active Directory. Ensure MFA is enforced through authentication policy silos or conditional access policies to prevent bypass.",
@@ -937,7 +937,7 @@
   {
     "title": "Overpass-the-Hash / Pass-the-Key",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Overpass-the-Hash, also known as Pass-the-Key, is a technique in which a captured NTLM hash or Kerberos AES key is used to request a Kerberos TGT rather than for direct NTLM authentication. This converts a harvested hash into a fully functional Kerberos ticket, enabling authentication to services that only accept Kerberos while blending with legitimate authentication traffic.",
     "impact": "An attacker in possession of an NTLM hash or AES key for a privileged account may be able to obtain valid Kerberos tickets for that account, enabling access to all domain resources that account is authorised to access — including systems requiring Kerberos-only authentication — while generating events that appear as legitimate Kerberos logons.",
     "recommendations": "Implement Credential Guard via Virtualisation-Based Security to protect NTLM hashes and Kerberos keys in LSA memory. Enforce AES-only Kerberos encryption across the domain. Monitor for unusual Kerberos TGT requests (event ID 4768) from systems that do not typically perform Kerberos authentication. Deploy Privileged Access Workstations.",
@@ -955,7 +955,7 @@
   {
     "title": "Pass the Hash",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "NTLM authentication is in use within the environment and local or domain account NTLM hashes can be extracted and reused to authenticate to other systems without requiring the plaintext password. This technique is enabled by the design of NTLM and by the widespread reuse of local administrator credentials across systems.",
     "impact": "An attacker who has extracted an NTLM hash from a compromised system may be able to authenticate to other systems within the domain using that hash directly, without cracking it to recover the plaintext password. This can enable rapid lateral movement across the environment, particularly where local administrator passwords are reused, allowing the attacker to pivot from a single compromised host to full domain compromise.",
     "recommendations": "Deploy Microsoft LAPS or a third-party equivalent to ensure unique local administrator passwords on all domain-joined systems. Restrict NTLM usage using Group Policy where possible, or monitor for anomalous NTLM authentication events. Consider enabling Protected Users security group membership for privileged accounts to prevent NTLM authentication.",
@@ -971,7 +971,7 @@
   {
     "title": "Pass the Ticket",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Kerberos tickets can be extracted from memory on compromised systems and reused on other systems to authenticate as the ticket's owner without requiring their credentials. This includes both service tickets (TGS) and ticket-granting tickets (TGT) extracted from LSASS memory.",
     "impact": "An attacker who has gained code execution on a system may be able to extract Kerberos tickets from memory and import them into their own session, authenticating to network resources as the affected user or service account. If a TGT is captured, the attacker can request service tickets for any service in the domain, enabling broad lateral movement.",
     "recommendations": "Enable Credential Guard on Windows systems to protect Kerberos tickets in memory using hardware-based isolation. Add privileged accounts to the Protected Users security group to restrict Kerberos ticket lifetime and prevent ticket caching. Monitor for Kerberos ticket anomalies such as unusual service ticket requests or ticket lifetimes.",
@@ -987,7 +987,7 @@
   {
     "title": "Pass-the-Certificate (PKINIT Authentication Abuse)",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Certificates obtained through AD CS exploitation or other means were used to authenticate via PKINIT (Public Key Cryptography for Initial Authentication in Kerberos), obtaining Kerberos TGTs for targeted accounts. Tools such as Rubeus and PKINITtools perform PKINIT authentication using PFX certificate files, bypassing the need for password or hash-based authentication entirely.",
     "impact": "An attacker in possession of a valid authentication certificate for a privileged domain account may be able to obtain Kerberos TGTs for that account via PKINIT, enabling access to all domain resources without possessing the account's password or NTLM hash, and maintaining persistence through password rotation as long as the certificate remains valid.",
     "recommendations": "Implement a certificate revocation strategy and regularly audit issued certificates via the CA management console. Set short validity periods (30–90 days) for user authentication certificates. Monitor for PKINIT authentication events using unusual certificate templates or outside expected certificate lifecycle windows. Rotate CA keys if certificate-based compromise is suspected.",
@@ -1005,7 +1005,7 @@
   {
     "title": "Resource-Based Constrained Delegation (RBCD) Abuse Path",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Conditions exist within the environment that enable a Resource-Based Constrained Delegation (RBCD) attack. This typically requires a combination of write permissions over a computer object's msDS-AllowedToActOnBehalfOfOtherIdentity attribute and the ability to create or control a computer account in the domain (facilitated by MachineAccountQuota being non-zero or write access to an existing computer object).",
     "impact": "An attacker with the necessary write permissions may be able to configure RBCD to allow an attacker-controlled computer account to impersonate any user, including domain administrators, to the target computer. This enables the attacker to obtain service tickets as a domain administrator for the target host and access it with full administrative privileges.",
     "recommendations": "Audit the ACLs on all computer objects to identify accounts with write permissions over the msDS-AllowedToActOnBehalfOfOtherIdentity attribute. Set MachineAccountQuota to 0 to prevent standard users from creating computer accounts. Review and remove unnecessary write delegations on computer objects, and monitor for modifications to the msDS-AllowedToActOnBehalfOfOtherIdentity attribute using event ID 5136.",
@@ -1022,7 +1022,7 @@
   {
     "title": "S4U2Self / S4U2Proxy Service-for-User Abuse",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Services configured for Kerberos constrained delegation can abuse the Service-for-User (S4U) protocol extensions to obtain service tickets on behalf of arbitrary users. Where combined with Protocol Transition, a compromised service account can obtain service tickets for Domain Administrators without requiring any interaction or forwarded TGT from those users.",
     "impact": "An attacker who has compromised a service account with constrained delegation privileges may be able to use S4U2Self to obtain a forwarded TGS for any user including Domain Admins, then use S4U2Proxy to access target services on their behalf, facilitating privilege escalation and lateral movement without any interaction from the targeted account.",
     "recommendations": "Restrict constrained delegation to the minimum set of target services required. Prefer RBCD with tight ACL controls over classic constrained delegation. Mark highly privileged accounts with the 'Account is sensitive and cannot be delegated' flag. Audit delegation configurations using BloodHound or PowerView.",
@@ -1040,7 +1040,7 @@
   {
     "title": "SMB Signing Disabled or Not Required",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "SMB signing is not enabled or not enforced on one or more systems within the environment. SMB signing provides integrity protection for SMB traffic, preventing attackers from modifying packets in transit or relaying SMB authentication to other systems.",
     "impact": "An attacker in a position to intercept network traffic may be able to relay SMB authentication from a coerced or intercepted connection to another host where the victim account has access. Without SMB signing, relayed authentication is accepted without any cryptographic verification, enabling the attacker to authenticate to other systems and potentially escalate privileges or achieve lateral movement.",
     "recommendations": "Enable and enforce SMB signing on all domain systems through Group Policy. Set RequireSecuritySignature to 1 for both the SMB server and client. Domain Controllers should have SMB signing enforced by default, but workstations and member servers must be explicitly configured. Consider using Windows Defender Firewall rules to restrict SMB access to necessary connections only.",
@@ -1056,7 +1056,7 @@
   {
     "title": "SYSVOL / GPP Credential Exposure",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Credentials were found stored in Group Policy Preferences (GPP) XML files within the NETLOGON or SYSVOL shares. Microsoft used a static AES key to encrypt these passwords, and the key was publicly disclosed. Any domain user can read the SYSVOL share and decrypt the stored credentials.",
     "impact": "Any authenticated domain user may be able to retrieve and decrypt the credentials stored in GPP XML files, obtaining plaintext passwords for the accounts configured in the policy. Depending on the account type, this could provide access to local administrator accounts on domain-joined systems or, in more severe cases, privileged domain accounts.",
     "recommendations": "Immediately remove all GPP entries that contain encrypted passwords (cpassword attributes) from SYSVOL. Microsoft published MS14-025 to prevent new passwords from being stored in GPP, but existing entries must be removed manually. Rotate the passwords for all affected accounts and use alternative methods such as LAPS for local administrator account management.",
@@ -1072,7 +1072,7 @@
   {
     "title": "Shadow Credentials Attack (msDS-KeyCredentialLink Abuse)",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The msDS-KeyCredentialLink attribute of a target AD account was modified to add attacker-controlled key credentials, a technique known as Shadow Credentials. With write access to this attribute — commonly obtained via GenericWrite or WriteDACL ACL abuse — an attacker adds a public key they control, enabling PKINIT authentication as the target account without knowing its password.",
     "impact": "An attacker who can write to the msDS-KeyCredentialLink attribute of a target account may be able to authenticate as that account via PKINIT, obtaining a TGT and NT hash without password knowledge, and maintaining persistent access through password resets as long as the attacker-controlled key credential remains present in the attribute.",
     "recommendations": "Audit msDS-KeyCredentialLink attribute modifications (Event ID 4662 with object access auditing). Restrict write access to this attribute to only authorised Windows Hello for Business or Entra ID sync services. Regularly audit msDS-KeyCredentialLink entries on high-value accounts for unexpected entries. Deploy Microsoft Defender for Identity to detect anomalous key credential additions.",
@@ -1090,7 +1090,7 @@
   {
     "title": "Silver Ticket Attack Path",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Service account NTLM hashes or Kerberos long-term keys have been exposed, enabling the forging of Kerberos service tickets (Silver Tickets) for services authenticated by that account. Unlike Golden Tickets, Silver Tickets do not require the KRBTGT hash and are signed using the service account's key, making them harder to detect.",
     "impact": "An attacker in possession of a service account's password hash may be able to forge Kerberos service tickets granting access to any service authenticated by that account, including specifying an arbitrary user identity such as a domain administrator in the ticket's PAC. Silver Tickets bypass the Key Distribution Centre entirely and are valid for the lifetime of the service account's password, providing persistent access that does not generate KDC events.",
     "recommendations": "Rotate the passwords of all service accounts whose credentials may have been exposed. Enforce the use of Group Managed Service Accounts (gMSAs) for service authentication, as their passwords are managed and rotated automatically. Enable PAC validation on sensitive services to ensure forged PACs are detected. Monitor for Kerberos service ticket usage without corresponding KDC events.",
@@ -1107,7 +1107,7 @@
   {
     "title": "Unconstrained Kerberos Delegation",
     "severity": "high",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "One or more non-domain-controller computer accounts or service accounts are configured with unconstrained Kerberos delegation. When a user authenticates to a service on a host with unconstrained delegation, their TGT is forwarded to and stored on that host, allowing the service to impersonate the user to any other service in the domain.",
     "impact": "An attacker who compromises a host or service account with unconstrained delegation enabled may be able to extract TGTs from LSASS memory for all users who have authenticated to that system, including domain administrators. Combined with a coercion attack such as the printer bug or PetitPotam, an attacker may be able to force a Domain Controller to authenticate to the compromised host and capture the DC's TGT, enabling domain compromise.",
     "recommendations": "Identify all accounts with unconstrained delegation and migrate them to constrained or resource-based constrained delegation where possible. Ensure that sensitive accounts such as domain administrators are added to the Protected Users group to prevent their tickets being cached on delegated systems.",
@@ -1123,7 +1123,7 @@
   {
     "title": "AdminCount Attribute Set on Non-Administrative Accounts",
     "severity": "low",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The adminCount attribute is set to 1 on accounts that are not currently members of privileged groups. This attribute is set by the SDProp process when an account is added to a protected group, but is not automatically cleared when the account is removed. Accounts with adminCount=1 do not inherit permissions from their parent OU, which can complicate security control application and indicates historical privilege.",
     "impact": "Accounts with adminCount=1 that are no longer members of privileged groups have non-standard ACLs inherited from AdminSDHolder, which may grant administrative accounts unintended permissions over them. This can complicate delegation and group policy application, and may indicate accounts that formerly held elevated privileges, making them a reconnaissance target for attackers seeking to understand historical access patterns.",
     "recommendations": "Identify all accounts with adminCount=1 that are not current members of protected groups. Clear the adminCount attribute on these accounts and restore ACL inheritance by enabling the 'Allow inheritable permissions from the parent to propagate to this object' option. Implement regular audits to identify and remediate adminCount mismatches.",
@@ -1139,7 +1139,7 @@
   {
     "title": "Kerberos Username Enumeration (Kerbrute)",
     "severity": "low",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Kerberos authentication service responds differently to AS-REQ requests for valid versus invalid usernames. Tools such as Kerbrute exploit this behaviour to enumerate valid domain user accounts without requiring credentials, without triggering account lockout mechanisms, and without generating 4625 logon failure events on domain controllers.",
     "impact": "An attacker may be able to enumerate a list of valid domain user accounts, providing a refined target list for subsequent password spraying, phishing, or credential stuffing attacks, and revealing internal naming conventions that aid further reconnaissance and social engineering.",
     "recommendations": "Enable Kerberos pre-authentication logging (event ID 4768) and alert on high volumes of AS-REQ requests from a single source. Implement network-level rate limiting on TCP/UDP port 88. Deploy honeypot accounts to detect enumeration attempts. Ensure user account naming conventions do not unnecessarily expose organisational structure.",
@@ -1157,7 +1157,7 @@
   {
     "title": "Stale and Inactive Domain Accounts",
     "severity": "low",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Active Directory environment contains a significant number of user accounts that have been inactive for an extended period, indicating they belong to former employees, contractors, or obsolete service accounts. These accounts remain enabled and represent unnecessary attack surface.",
     "impact": "Stale accounts that are not monitored or subject to active use may be compromised through credential attacks without the compromise being detected through normal user activity monitoring. An attacker who successfully authenticates using a stale account may operate with reduced detection risk, as no legitimate user is present to notice anomalous login activity.",
     "recommendations": "Implement a process to regularly identify and disable accounts that have been inactive for a defined period. Establish a joiners, movers, and leavers process to ensure accounts are disabled promptly when users leave or change roles. Review service accounts to confirm they are still in use and remove those that are not.",
@@ -1172,7 +1172,7 @@
   {
     "title": "Accounts with 'Password Never Expires' Flag",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "A number of Active Directory user or service accounts have the 'Password Never Expires' flag set, meaning their passwords are never forced to change regardless of the domain password policy. This is particularly concerning for accounts with elevated privileges.",
     "impact": "Accounts with passwords that never expire increase the risk that compromised credentials remain valid indefinitely. If a password is exposed through a breach, phishing, or offline cracking and is never rotated, an attacker may retain persistent access to the account without any time-based remediation occurring through normal policy enforcement.",
     "recommendations": "Review all accounts with the 'Password Never Expires' flag and assess whether the setting is genuinely necessary. For service accounts, consider migrating to Group Managed Service Accounts (gMSAs) which handle password rotation automatically. For user accounts, remove the flag and ensure they are subject to the domain password expiry policy.",
@@ -1187,7 +1187,7 @@
   {
     "title": "Domain Password Spraying",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The domain lacks sufficient controls to prevent or detect low-and-slow password spraying attacks against domain accounts. Password spraying involves attempting a single common password against many accounts to avoid account lockout thresholds.",
     "impact": "An attacker may be able to gain valid domain credentials by attempting common or seasonal passwords against domain accounts at a rate that avoids triggering account lockout policies. Once valid credentials are obtained, the attacker has authenticated domain access and can conduct further reconnaissance, lateral movement, or privilege escalation.",
     "recommendations": "Implement account lockout policies with appropriate thresholds and observation windows that detect low-and-slow attacks. Deploy Microsoft Entra ID Password Protection or equivalent to prevent the use of common passwords. Monitor for authentication anomalies such as a single source IP authenticating against many different accounts. Enforce multi-factor authentication to reduce the impact of compromised credentials.",
@@ -1203,7 +1203,7 @@
   {
     "title": "KRBTGT Account Password Not Recently Rotated",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The KRBTGT account password has not been rotated recently. The KRBTGT account is used to sign all Kerberos tickets in the domain, and its password hash is used to forge Golden Tickets. If an attacker has previously obtained the KRBTGT hash, they may retain the ability to generate valid Kerberos tickets indefinitely until the password is rotated twice.",
     "impact": "If an attacker has previously compromised the domain and obtained the KRBTGT hash, they may be able to continue generating valid Golden Tickets even after remediation efforts, as long as the KRBTGT password has not been rotated twice. This provides persistent covert access to the domain that survives password resets of other accounts and even some reinstallation scenarios.",
     "recommendations": "Rotate the KRBTGT account password twice, waiting one Kerberos ticket lifetime (typically 10 hours) between rotations to ensure all tickets signed with the old key expire naturally. Use Microsoft's documented KRBTGT reset script for the first rotation. Establish a process to rotate the KRBTGT password regularly (at least annually, or following any suspected domain compromise).",
@@ -1219,7 +1219,7 @@
   {
     "title": "No Privileged Access Workstation (PAW) Policy",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The organisation does not enforce the use of dedicated Privileged Access Workstations (PAWs) for administrative tasks. Administrators use the same workstations for general purpose activities such as email and web browsing as they do for performing privileged Active Directory and server administration.",
     "impact": "General-purpose workstations used for privileged administration are exposed to the full threat landscape including phishing, malicious web content, and drive-by downloads. If a workstation used by a domain administrator is compromised, an attacker may be able to capture privileged credentials from memory, intercept administrative sessions, or leverage cached privileged tickets to compromise the domain.",
     "recommendations": "Implement a Privileged Access Workstation (PAW) strategy where dedicated, hardened workstations are used exclusively for privileged administration tasks. These workstations should be isolated from general internet access, have a minimal software footprint, enforce application whitelisting, and be subject to enhanced monitoring. Implement a tiered administration model to enforce separation of duties across administrative tiers.",
@@ -1235,7 +1235,7 @@
   {
     "title": "Privileged Accounts Used for Non-Privileged Tasks",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Domain administrators and other privileged accounts are being used to perform routine tasks such as browsing the web, reading email, or logging into general workstations. This increases the risk that privileged credentials are exposed to threats that target standard user activity.",
     "impact": "Privileged accounts used on workstations or for general tasks are exposed to the full threat landscape targeting those environments, including malware, phishing, and browser exploits. If a privileged account's credentials are captured on a workstation, the attacker immediately gains domain-level access without needing to perform any additional privilege escalation.",
     "recommendations": "Enforce a tiered administration model where privileged accounts are only used on dedicated, hardened Privileged Access Workstations (PAWs) and are never used for general tasks. Implement controls to prevent privileged accounts from logging into Tier 1 and Tier 2 systems, and educate administrators on the risks of using privileged accounts for non-administrative tasks.",
@@ -1250,7 +1250,7 @@
   {
     "title": "Timeroasting – Machine Account Password Hash Extraction",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "Timeroasting exploits the Network Time Protocol synchronisation mechanism used by Active Directory. By sending crafted MS-SNTP requests containing forged timestamps to domain controllers, an unauthenticated attacker can elicit responses signed with the RC4 hash of a machine account's NT password, allowing offline brute-force or dictionary attacks.",
     "impact": "An attacker with network access to port 123 (UDP/NTP) may be able to extract RC4-signed NTP responses containing machine account password hashes, then recover machine account credentials offline. Compromised machine accounts may facilitate lateral movement or privilege escalation, particularly where machine accounts hold elevated permissions.",
     "recommendations": "Enforce strong, randomly generated passwords for all machine accounts via Managed Service Accounts (gMSA/MSA). Monitor for anomalous NTP requests from non-NTP hosts. Consider deploying honeytoken machine accounts to detect exploitation attempts. Apply available patches addressing MS-SNTP authentication weaknesses.",
@@ -1268,7 +1268,7 @@
   {
     "title": "Weak Domain Password Policy",
     "severity": "medium",
-    "category": "Active Directory",
+    "category": "Internal Infrastructure",
     "description": "The Active Directory domain password policy does not enforce sufficiently strong password requirements. This may include insufficient minimum length, lack of complexity requirements, or password history settings that do not prevent the reuse of recently used passwords.",
     "impact": "Users may be permitted to set passwords that are easily guessable or susceptible to dictionary attacks. If an attacker obtains password hashes through techniques such as Kerberoasting, AS-REP Roasting, or DCSync, weak passwords will significantly reduce the time required to crack them offline, increasing the likelihood of domain-wide compromise.",
     "recommendations": "Increase the minimum password length to at least 12 characters and enforce password history to prevent reuse of recent passwords. Deploy Microsoft Entra ID Password Protection or a third-party equivalent to block common and previously breached passwords. Consider implementing Fine-Grained Password Policies (FGPPs) to enforce stricter requirements on privileged accounts.",
@@ -5712,6 +5712,24 @@
       "clipboard",
       "windows",
       "pii"
+    ],
+    "cvss_score": null,
+    "cvss_vector": ""
+  },
+  {
+    "title": "Total Domain Compromise",
+    "severity": "critical",
+    "category": "Internal Infrastructure",
+    "description": "Through chaining multiple vulnerabilities identified during this assessment, the assessor achieved **Total Domain Compromise** across the target environment. Full Domain Administrator and Enterprise Administrator level access was obtained across all assessed domains, granting unrestricted control over every domain-joined system, user account, and organisational resource.\n\n**Attack Path Summary:**\n\nThe following condensed attack chain was executed during the assessment:\n\n```\nUnauthenticated Network Access\n  └─► Password Spraying → Initial Foothold (low-privilege domain user)\n        └─► BloodHound Enumeration → ACL Abuse Path Identified\n              └─► Kerberoasting / AS-REP Roasting → Privileged Account Credential\n                    └─► DCSync → NTLM Hash Dump (all domain accounts)\n                          └─► Pass-the-Hash / Golden Ticket → Domain Admin on all DCs\n```\n\n**Evidence of Domain Administrator Access:**\n\nSecretsdump executed against the primary domain controller confirmed retrieval of the NTLM hash of the `krbtgt` account, enabling offline Golden Ticket creation and persistent domain-level access:\n\n```\n# DCSync via secretsdump\nimpacket-secretsdump -just-dc-ntlm SEVENKINGDOMS/administrator@192.168.56.10\n\n[*] Dumping Domain Credentials (domain\\uid:rid:lmhash:nthash)\nAdministrator:500:aad3b435b51404eeaad3b435b51404ee:dbd13e1c4e338284ac4e9874f7de6ef4:::\nkrbtgt:502:aad3b435b51404eeaad3b435b51404ee:7f5bc6f9b6b34b2f5a0e8c4d9c3a1b2e:::\n[*] Kerberos keys grabbed\nkrbtgt:aes256-cts-hmac-sha1-96:3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b\n```\n\nGolden Ticket created using the `krbtgt` hash, providing persistent and effectively irrevocable domain access:\n\n```\n# Golden Ticket creation\nimpacket-ticketer -nthash 7f5bc6f9b6b34b2f5a0e8c4d9c3a1b2e \\\n  -domain-sid S-1-5-21-3262685841-2926215580-1266843071 \\\n  -domain sevenkingdoms.local \\\n  -groups 512,518,519,520 \\\n  administrator\n\n[*] Creating basic skeleton ticket and PAC Infos\n[*] Saving ticket in administrator.ccache\n```\n\nRemote code execution confirmed on all domain controllers as `NT AUTHORITY\\SYSTEM`:\n\n```\nimpacket-psexec -k -no-pass sevenkingdoms.local/administrator@dc01.sevenkingdoms.local\n\nC:\\Windows\\system32> whoami\nnt authority\\system\n\nC:\\Windows\\system32> hostname\nKINGSLANDING\n```",
+    "impact": "The assessor exercised full administrative control over the entire Active Directory forest, including:\n\n- **Unrestricted access to all domain-joined systems** — every workstation, server, and domain controller is accessible with local SYSTEM privileges\n- **Full credential exposure** — all Active Directory account password hashes were retrieved, including privileged service accounts, Domain Admins, and the `krbtgt` account\n- **Persistent access via Golden Ticket** — possession of the `krbtgt` hash enables creation of arbitrary Kerberos tickets that remain valid until the `krbtgt` password is rotated twice, and are undetectable without specific tooling\n- **Cross-domain escalation** — access extended to all trusted domains within the forest\n- **Complete confidentiality breach** — all data accessible to any domain account is readable by the assessor, including file shares, databases, email, and backups\n- **Business continuity risk** — a malicious actor with this level of access could encrypt, exfiltrate, or destroy the entire domain infrastructure\n\nThis represents the most severe possible outcome of a network intrusion — equivalent to unrestricted physical access to every system in the organisation.",
+    "recommendations": "Remediating total domain compromise requires a structured, phased response:\n\n**Immediate Actions (within 24–48 hours):**\n1. **Rotate the `krbtgt` password twice** with a minimum 10-hour gap between rotations to invalidate all existing Kerberos tickets including any Golden Tickets\n2. **Reset all privileged account passwords** — Domain Admins, Enterprise Admins, Schema Admins, service accounts\n3. **Revoke and re-issue all ADCS certificates** if Certificate Services was part of the attack chain\n4. **Isolate and forensically preserve** affected domain controllers before remediation begins\n\n**Short-Term (within 2 weeks):**\n- Address every individual vulnerability identified in this report — each is a discrete re-entry point\n- Review and audit all Active Directory ACLs for excessive permissions (GenericAll, WriteDACL, WriteOwner on privileged objects)\n- Enable Protected Users security group for all Tier 0 accounts\n- Implement Credential Guard on all domain-joined systems to prevent in-memory credential theft\n\n**Longer-Term (1–3 months):**\n- Implement a Tiered Administration Model (Tier 0/1/2) to limit lateral movement paths\n- Deploy Microsoft Defender for Identity (or equivalent) for real-time AD attack detection\n- Enforce LAPS for all local administrator accounts\n- Conduct a full Active Directory health assessment and remediation programme\n- Implement Privileged Access Workstations (PAWs) for all Tier 0 administration",
+    "tags": [
+      "domain-compromise",
+      "active-directory",
+      "critical-chain",
+      "golden-ticket",
+      "dcsync",
+      "internal-infrastructure"
     ],
     "cvss_score": null,
     "cvss_vector": ""

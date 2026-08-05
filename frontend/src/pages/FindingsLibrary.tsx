@@ -9,7 +9,7 @@ const SEV_OPTIONS: Severity[] = ['critical', 'high', 'medium', 'low', 'informati
 const SEV_RANK: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3, informational: 4 }
 
 const CATEGORIES = [
-  'Active Directory', 'Web Application', 'API', 'Network', 'Infrastructure',
+  'Web Application', 'API', 'Network', 'Infrastructure',
   'Cloud', 'Physical', 'Social Engineering', 'Mobile', 'Wireless',
   'Source Code Review', 'C# / .NET', 'Java', 'Python', 'Go',
   'AngularJS / Angular', 'Thick Client',
